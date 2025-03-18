@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio ❄</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  
+  <div class="container">
+    <div class="content">
+      <h1>¡Bienvenido de nuevo!</h1>
+      <p class="date-time"></p>
+      <input type="text" class="search-bar" id="search-input" placeholder="Escribe algo para buscar en internet." required>
+
+      <!-- ✅ Contenedor para enlaces o imagen si está vacío -->
+      <div class="links-container">
+        <div class="links"></div>
+
+        <!-- 👉 Imagen que aparecerá solo si no hay categorías -->
+        <div class="no-links-image" id="no-links-image" style="display: none;">
+          <img src="animegirl.jpg" alt="No Links Anime" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Imagen permanente (no la tocaremos) -->
+    <div class="image-container" id="image-container">
+      <img id="anime-image" src="animegirl.jpg" alt="Anime Girl">
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
