@@ -6,6 +6,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const animeImage = document.getElementById('anime-image');
     const imageBannerElement = imageBanner.querySelector('img');
 
+    const defaultLinks = {
+        "random": [
+            { name: "YouTube", url: "https://www.youtube.com" },
+            { name: "Pinterest", url: "https://www.pinterest.com/" }
+        ],
+        "dev": [
+            { name: "You AI", url: "https://you.com/" },
+            { name: "Gemini AI", url: "https://gemini.google.com/" },
+            { name: "ChatGPT", url: "https://chatgpt.com/" },
+            { name: "Github", url: "https://github.com/" }
+        ],
+        "redes sociales": [
+            { name: "X", url: "https://x.com/" },
+            { name: "Twitch", url: "https://www.twitch.tv/" },
+            { name: "Instagram", url: "https://www.instagram.com/" },
+            { name: "Facebook Marketplace", url: "https://www.facebook.com/marketplace/" },
+            { name: "TikTok", url: "https://www.tiktok.com/" }
+        ],
+        "anime": [
+            { name: "AnimeFLV", url: "https://www3.animeflv.net/" },
+            { name: "Jkanime", url: "https://jkanime.net/" }
+        ]
+    };
+
     // ✅ Cargar imágenes personalizadas o restaurar las predeterminadas
     function loadCustomImages(callback) {
         chrome.storage.local.get(['mainImage', 'imageBanner'], (data) => {
@@ -90,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (Object.keys(links).length === 0) {
                 imageBanner.style.display = 'block';
-                fetchRandomAnimeImage(true); // Cargar imagen aleatoria para "image banner"
                 return;
             }
 
@@ -126,7 +149,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    loadLinks();
+    // ✅ Inicializar categorías si no existen
+    function initializeLinks() {
+        chrome.storage.sync.get('links', (data) => {
+            if (!data.links) {
+                chrome.storage.sync.set({ links: defaultLinks }, loadLinks);
+            } else {
+                loadLinks();
+            }
+        });
+    }
+
+    initializeLinks();
 
     // ✅ Obtener imágenes de anime aleatorias
     function fetchRandomAnimeImage(forImageBanner = false) {
@@ -136,17 +170,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const img = new Image();
                 img.src = data.url;
                 img.onload = () => {
-                    if (forImageBanner) {
-                        imageBannerElement.src = data.url;
-                    } else {
+                    if (!forImageBanner) {
                         animeImage.src = data.url;
                     }
                 };
             })
             .catch(() => {
-                if (forImageBanner) {
-                    imageBannerElement.src = '';  // Si falla, mantenerlo vacío
-                } else {
+                if (!forImageBanner) {
                     animeImage.src = '';  // Si falla, mantenerlo vacío
                 }
             });
