@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const linksContainer = document.getElementById('links-container');
     const resetButton = document.getElementById('reset-button');
     const toggleGithub = document.getElementById('toggle-github');
+    const toggleBanner = document.getElementById('toggle-banner');
     const mainImageUpload = document.getElementById('main-image-upload');
     const mainImageUploadBtn = document.getElementById('main-image-upload-btn');
     const imageBannerUpload = document.getElementById('image-banner-upload');
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
 
         if (file.size > MAX_IMAGE_SIZE) {
+            console.error('Error: El tamaño de la imagen supera el límite permitido.');
             return;
         }
 
@@ -135,15 +137,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initializeLinks() {
-        chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
+        chrome.storage.sync.get(['links', 'hideGithub', 'hideBanner'], (data) => {
             if (!data.links) {
                 chrome.storage.sync.set({ links: defaultLinks }, loadLinks);
             } else {
                 loadLinks();
             }
             
-            const isHidden = data.hideGithub ?? false;
-            toggleGithub.checked = isHidden;
+            const isHiddenGithub = data.hideGithub ?? false;
+            toggleGithub.checked = isHiddenGithub;
+
+            const isHiddenBanner = data.hideBanner ?? false;
+            toggleBanner.checked = isHiddenBanner;
+            const imageBannerElement = document.getElementById('image-banner');
+            if (imageBannerElement) {
+                imageBannerElement.style.display = isHiddenBanner ? 'none' : 'block';
+            }
         });
     }
 
@@ -161,8 +170,18 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeLinks();
 
     toggleGithub.addEventListener('change', () => {
-        const isHidden = toggleGithub.checked;
-        chrome.storage.sync.set({ hideGithub: isHidden });
+        const isHiddenGithub = toggleGithub.checked;
+        chrome.storage.sync.set({ hideGithub: isHiddenGithub });
+    });
+
+    toggleBanner.addEventListener('change', () => {
+        const isHiddenBanner = toggleBanner.checked;
+        chrome.storage.sync.set({ hideBanner: isHiddenBanner }, () => {
+            const imageBannerElement = document.getElementById('image-banner');
+            if (imageBannerElement) {
+                imageBannerElement.style.display = isHiddenBanner ? 'none' : 'block';
+            }
+        });
     });
 
     resetButton.addEventListener('click', () => {

@@ -32,28 +32,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ✅ Cargar imágenes personalizadas o restaurar las predeterminadas
     function loadCustomImages(callback) {
-        chrome.storage.local.get(['mainImage', 'imageBanner'], (data) => {
-            let hasCustomImage = false;
+        chrome.storage.sync.get('hideBanner', (config) => {
+            const hideBanner = config.hideBanner ?? false;
 
-            // ✅ Imagen principal
-            if (data.mainImage) {
-                hasCustomImage = true;
-                animeImage.src = data.mainImage;
-            } else {
-                animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');
-            }
+            chrome.storage.local.get(['mainImage', 'imageBanner'], (data) => {
+                let hasCustomImage = false;
 
-            // ✅ Imagen "image banner"
-            if (data.imageBanner) {
-                hasCustomImage = true;
-                imageBannerElement.src = data.imageBanner;  // ✅ Aplicar personalizada
-                imageBanner.style.display = 'block';
-            } else {
-                imageBannerElement.src = chrome.runtime.getURL('images/default-anime.jpg');
-                imageBanner.style.display = 'block';  // ✅ Mostrar la predeterminada
-            }
+                // ✅ Imagen principal
+                if (data.mainImage) {
+                    hasCustomImage = true;
+                    animeImage.src = data.mainImage;
+                } else {
+                    animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');
+                }
 
-            if (callback) callback(hasCustomImage);
+                // ✅ Imagen "image banner"
+                if (data.imageBanner) {
+                    hasCustomImage = true;
+                    imageBannerElement.src = data.imageBanner;  // ✅ Aplicar personalizada
+                } else {
+                    imageBannerElement.src = chrome.runtime.getURL('images/default-banner.jpg');  // ✅ Mostrar la predeterminada
+                }
+
+                imageBanner.style.display = hideBanner ? 'none' : 'block';
+
+                if (callback) callback(hasCustomImage);
+            });
         });
     }
 
@@ -192,6 +196,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateGithubVisibility();
 
+    // ✅ Mostrar/ocultar imagen del banner según la configuración
+    function updateBannerVisibility() {
+        chrome.storage.sync.get('hideBanner', (data) => {
+            const hideBanner = data.hideBanner ?? false;
+            imageBanner.style.display = hideBanner ? 'none' : 'block';
+        });
+    }
+
+    updateBannerVisibility();
+
     // ✅ Escuchar cambios dinámicos en el almacenamiento
     chrome.storage.onChanged.addListener((changes) => {
         if (changes.mainImage || changes.imageBanner) {
@@ -204,6 +218,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (changes.disableAnimeFetch) {
             loadImage();  // ✅ Actualizar la imagen según el estado del switch
+        }
+
+        if (changes.hideBanner) {
+            updateBannerVisibility();
         }
     });
 
