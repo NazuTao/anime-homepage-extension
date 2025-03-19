@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Mi Nueva Pestaña Personalizada",
-    "version": "1.0",
-    "description": "Reemplaza la página de nueva pestaña con contenido personalizado.",
+    "name": "Custom Home page for chrome",
+    "version": "1.1",
+    "description": "Permite personalizar las nuevas pestañas de chrome con imagenes y enlaces.",
     
     "permissions": [
         "storage"

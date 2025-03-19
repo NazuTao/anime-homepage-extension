@@ -62,14 +62,7 @@ clearImagesBtn.addEventListener('click', () => {
     chrome.storage.local.remove(['mainImage', 'noLinksImage'], () => {
         alert('Imágenes personalizadas eliminadas.');
 
-        // ✅ Restaurar la imagen local predeterminada después de borrar
         chrome.runtime.sendMessage({ action: 'updateImages' });
-
-        // ✅ Mostrar la imagen local predeterminada al borrar
-        chrome.storage.local.set({
-            mainImage: 'animegirl.jpg',
-            noLinksImage: 'animegirl.jpg'
-        });
     });
 });
     // ✅ Inicializar enlaces y estado del switch de GitHub

@@ -5,33 +5,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const githubButton = document.querySelector('.tooltip-container');
     const animeImage = document.getElementById('anime-image');
 
-    // ✅ Cargar las imágenes personalizadas desde `chrome.storage.local`
-    function loadCustomImages() {
+    // ✅ Cargar imágenes personalizadas o restaurar las predeterminadas
+    function loadCustomImages(callback) {
         chrome.storage.local.get(['mainImage', 'noLinksImage'], (data) => {
+            let hasCustomImage = false;
+
+            // ✅ Imagen principal
             if (data.mainImage) {
-                animeImage.src = data.mainImage;  // ✅ Imagen personalizada principal
+                hasCustomImage = true;
+                animeImage.src = data.mainImage;
             } else {
-                animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');  // Imagen por defecto
+                animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');
             }
 
+            // ✅ Imagen "no links"
+            const noLinksImgElement = noLinksImage.querySelector('img');
+
             if (data.noLinksImage) {
-                noLinksImage.src = data.noLinksImage;  // ✅ Imagen personalizada sin enlaces
+                hasCustomImage = true;
+                noLinksImgElement.src = data.noLinksImage;  // ✅ Aplicar personalizada
+                noLinksImage.style.display = 'block';
             } else {
-                noLinksImage.src = chrome.runtime.getURL('images/default-anime.jpg');  // Imagen por defecto
+                noLinksImgElement.src = chrome.runtime.getURL('images/default-anime.jpg');
+                noLinksImage.style.display = 'block';  // ✅ Mostrar la predeterminada
             }
+
+            if (callback) callback(hasCustomImage);
         });
     }
 
-    // ✅ Verificar el estado del switch al cargar la página
-    chrome.storage.sync.get('disableAnimeFetch', (data) => {
-        const isDisabled = data.disableAnimeFetch ?? false;
+    // ✅ Verificar el estado del switch
+    function loadImage() {
+        chrome.storage.sync.get('disableAnimeFetch', (config) => {
+            const isDisabled = config.disableAnimeFetch ?? false;
 
-        if (isDisabled) {
-            loadCustomImages();  // ✅ Cargar imágenes locales si el switch está activado
-        } else {
-            loadImage();  // ✅ Imagen aleatoria si el switch está apagado
-        }
-    });
+            loadCustomImages((hasCustomImage) => {
+                if (!isDisabled && !hasCustomImage) {
+                    // ✅ Solo cargar imagen aleatoria si no hay personalizada
+                    fetchRandomAnimeImage();
+                }
+            });
+        });
+    }
 
     // ✅ Búsqueda instantánea
     searchInput.addEventListener('keypress', (event) => {
@@ -112,28 +127,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadLinks();
 
-    // ✅ Mostrar imagen local o aleatoria según el estado del switch
-    function loadImage() {
-        chrome.storage.sync.get('disableAnimeFetch', (config) => {
-            const isDisabled = config.disableAnimeFetch ?? false;
-
-            if (isDisabled) {
-                loadCustomImages();  // ✅ Cargar imágenes locales
-            } else {
-                fetchRandomAnimeImage();  // ✅ Imagen aleatoria
-            }
-        });
-    }
-
     // ✅ Obtener imágenes de anime aleatorias
     function fetchRandomAnimeImage() {
         fetch('https://api.waifu.pics/sfw/waifu')
             .then(response => response.json())
             .then(data => {
-                animeImage.src = data.url;
+                const img = new Image();
+                img.src = data.url;
+                img.onload = () => {
+                    animeImage.src = data.url;
+                };
             })
             .catch(() => {
-                animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');
+                animeImage.src = '';  // Si falla, mantenerlo vacío
             });
     }
 
@@ -169,13 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (message.action === 'toggleAnime') {
-            const isDisabled = message.disabled;
-
-            if (isDisabled) {
-                loadCustomImages();  // ✅ Imagen local si el switch está activado
-            } else {
-                loadImage();  // ✅ Buscar aleatoria si está desactivado
-            }
+            loadImage();
         }
     });
 

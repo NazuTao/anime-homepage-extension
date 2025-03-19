@@ -8,6 +8,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  transform: scale(0.9);
 }
 
 /* Contenedor principal */
@@ -113,16 +114,16 @@ object-fit: cover;       /* Ajuste para llenar el contenedor sin deformarse */
 }
 /* Tooltip flotante */
 .tooltip-container {
-position: fixed;
-bottom: 20px;
-right: 20px;
-width: 50px;
-height: 50px;
-z-index: 1000;
-transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  width: 45px; /* ✅ Reducido */
+  height: 45px; /* ✅ Reducido */
+  z-index: 1000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .tooltip-container:hover {
-transform: scale(1.1);
-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
