@@ -31,41 +31,39 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: "Jkanime", url: "https://jkanime.net/" }
         ]
     };
-   // ✅ Función para convertir la imagen a base64 y guardarla en `chrome.storage.local`
-   function handleImageUpload(input, key) {
-    const file = input.files[0];
-    if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-        const imageData = reader.result;  // Imagen en base64
-        chrome.storage.local.set({ [key]: imageData }, () => {
-            alert('Imagen subida con éxito.');
+    function handleImageUpload(input, key) {
+        const file = input.files[0];
+        if (!file) return;
 
-            // ✅ Enviar un mensaje a `newtab.html` para actualizar la imagen
+        const reader = new FileReader();
+        reader.onload = () => {
+            const imageData = reader.result;  // Imagen en base64
+            chrome.storage.local.set({ [key]: imageData }, () => {
+                alert('Imagen subida con éxito.');
+
+                // Enviar un mensaje a newtab.html para actualizar la imagen
+                chrome.runtime.sendMessage({ action: 'updateImages' });
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    mainImageUploadBtn.addEventListener('click', () => {
+        handleImageUpload(mainImageUpload, 'mainImage');
+    });
+
+    noLinksImageUploadBtn.addEventListener('click', () => {
+        handleImageUpload(noLinksImageUpload, 'noLinksImage');
+    });
+
+    clearImagesBtn.addEventListener('click', () => {
+        chrome.storage.local.remove(['mainImage', 'noLinksImage'], () => {
+            alert('Imágenes personalizadas eliminadas.');
             chrome.runtime.sendMessage({ action: 'updateImages' });
         });
-    };
-    reader.readAsDataURL(file);
-}
-
-// ✅ Manejadores de eventos para subir las imágenes
-mainImageUploadBtn.addEventListener('click', () => {
-    handleImageUpload(mainImageUpload, 'mainImage');
-});
-
-noLinksImageUploadBtn.addEventListener('click', () => {
-    handleImageUpload(noLinksImageUpload, 'noLinksImage');
-});
-
-clearImagesBtn.addEventListener('click', () => {
-    chrome.storage.local.remove(['mainImage', 'noLinksImage'], () => {
-        alert('Imágenes personalizadas eliminadas.');
-
-        chrome.runtime.sendMessage({ action: 'updateImages' });
     });
-});
-    // ✅ Inicializar enlaces y estado del switch de GitHub
+
     function initializeLinks() {
         chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
             if (!data.links) {
@@ -74,37 +72,36 @@ clearImagesBtn.addEventListener('click', () => {
                 loadLinks();
             }
             
-            // ✅ Inicializar el estado del switch
             const isHidden = data.hideGithub ?? false;
             toggleGithub.checked = isHidden;
         });
     }
+
     const toggleAnimeFetch = document.getElementById('toggle-anime-fetch');
 
-    // Inicializar el estado del switch
     chrome.storage.sync.get('disableAnimeFetch', (data) => {
         toggleAnimeFetch.checked = data.disableAnimeFetch ?? false;
     });
     
-    // Guardar el estado del switch
     toggleAnimeFetch.addEventListener('change', () => {
         const isDisabled = toggleAnimeFetch.checked;
-        chrome.storage.sync.set({ disableAnimeFetch: isDisabled });
+        chrome.storage.sync.set({ disableAnimeFetch: isDisabled }, () => {
+            // Enviar mensaje a script.js para actualizar la imagen
+            chrome.runtime.sendMessage({ action: 'toggleAnime' });
+        });
     });
+
     initializeLinks();
 
-    // ✅ Guardar el estado del switch de GitHub
     toggleGithub.addEventListener('change', () => {
         const isHidden = toggleGithub.checked;
         chrome.storage.sync.set({ hideGithub: isHidden }, loadLinks);
     });
 
-    // ✅ Restablecer a valores predeterminados
     resetButton.addEventListener('click', () => {
         chrome.storage.sync.set({ links: defaultLinks }, loadLinks);
     });
 
-    // ✅ Cargar enlaces
     function loadLinks() {
         linksContainer.innerHTML = '';
 
@@ -158,7 +155,6 @@ clearImagesBtn.addEventListener('click', () => {
                 const ul = document.createElement('ul');
 
                 links[category].forEach((link, index) => {
-                    // ✅ Ocultar el enlace de GitHub si el switch está activado
                     if (hideGithub && link.name.toLowerCase() === 'github') {
                         return; 
                     }
@@ -181,7 +177,6 @@ clearImagesBtn.addEventListener('click', () => {
         });
     }
 
-    // ✅ Delegación de eventos para manejar clics dinámicos
     linksContainer.addEventListener('click', (event) => {
         const target = event.target;
 
@@ -212,7 +207,6 @@ clearImagesBtn.addEventListener('click', () => {
         }
     });
 
-    // ✅ Agregar nuevo enlace con límite de 5
     function addNewLink(category) {
         chrome.storage.sync.get('links', (data) => {
             const links = data.links || {};
@@ -235,7 +229,6 @@ clearImagesBtn.addEventListener('click', () => {
         });
     }
 
-    // ✅ Normalizar URL
     function normalizeUrl(url) {
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
             return `https://${url}`;
@@ -243,7 +236,6 @@ clearImagesBtn.addEventListener('click', () => {
         return url;
     }
 
-    // ✅ Renombrar categoría
     function renameCategory(oldName, newName) {
         if (!newName.trim()) return;
 
@@ -262,7 +254,6 @@ clearImagesBtn.addEventListener('click', () => {
         });
     }
 
-    // ✅ Eliminar categoría
     function deleteCategory(category) {
         chrome.storage.sync.get('links', (data) => {
             const links = data.links || {};
@@ -272,7 +263,6 @@ clearImagesBtn.addEventListener('click', () => {
         });
     }
 
-    // ✅ Guardar enlace
     function saveLink(category, index, newName, newUrl) {
         chrome.storage.sync.get('links', (data) => {
             const links = data.links || {};
@@ -285,12 +275,15 @@ clearImagesBtn.addEventListener('click', () => {
         });
     }
 
-    // ✅ Eliminar enlace
     function deleteLink(category, index) {
         chrome.storage.sync.get('links', (data) => {
             const links = data.links || {};
             links[category].splice(index, 1);
             chrome.storage.sync.set({ links }, loadLinks);
         });
+    }
+
+    function createAddCategoryButton() {
+        // Implement this function to create a button that allows adding new categories
     }
 });

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const noLinksImage = document.getElementById('no-links-image');
     const githubButton = document.querySelector('.tooltip-container');
     const animeImage = document.getElementById('anime-image');
+    const noLinksImgElement = noLinksImage.querySelector('img');
 
     // ✅ Cargar imágenes personalizadas o restaurar las predeterminadas
     function loadCustomImages(callback) {
@@ -19,8 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // ✅ Imagen "no links"
-            const noLinksImgElement = noLinksImage.querySelector('img');
-
             if (data.noLinksImage) {
                 hasCustomImage = true;
                 noLinksImgElement.src = data.noLinksImage;  // ✅ Aplicar personalizada
@@ -39,12 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.sync.get('disableAnimeFetch', (config) => {
             const isDisabled = config.disableAnimeFetch ?? false;
 
-            loadCustomImages((hasCustomImage) => {
-                if (!isDisabled && !hasCustomImage) {
-                    // ✅ Solo cargar imagen aleatoria si no hay personalizada
-                    fetchRandomAnimeImage();
-                }
-            });
+            // ✅ Siempre cargar imagen aleatoria
+            if (!isDisabled) {
+                fetchRandomAnimeImage();
+            }
+
+            // ✅ Luego cargar imagen personalizada si existe
+            loadCustomImages();
         });
     }
 
@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (Object.keys(links).length === 0) {
                 noLinksImage.style.display = 'block';
+                fetchRandomAnimeImage(true); // Cargar imagen aleatoria para "no links"
                 return;
             }
 
@@ -128,18 +129,26 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLinks();
 
     // ✅ Obtener imágenes de anime aleatorias
-    function fetchRandomAnimeImage() {
+    function fetchRandomAnimeImage(forNoLinks = false) {
         fetch('https://api.waifu.pics/sfw/waifu')
             .then(response => response.json())
             .then(data => {
                 const img = new Image();
                 img.src = data.url;
                 img.onload = () => {
-                    animeImage.src = data.url;
+                    if (forNoLinks) {
+                        noLinksImgElement.src = data.url;
+                    } else {
+                        animeImage.src = data.url;
+                    }
                 };
             })
             .catch(() => {
-                animeImage.src = '';  // Si falla, mantenerlo vacío
+                if (forNoLinks) {
+                    noLinksImgElement.src = '';  // Si falla, mantenerlo vacío
+                } else {
+                    animeImage.src = '';  // Si falla, mantenerlo vacío
+                }
             });
     }
 
