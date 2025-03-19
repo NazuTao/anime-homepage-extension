@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageBannerUploadBtn = document.getElementById('image-banner-upload-btn');
     const clearImagesBtn = document.getElementById('clear-images-button');
 
+    const MAX_IMAGE_SIZE = 6 * 1024 * 1024; // 6 MB
     const defaultLinks = {
         "random": [
             { name: "YouTube", url: "https://www.youtube.com" },
@@ -36,33 +37,102 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = input.files[0];
         if (!file) return;
 
+        if (file.size > MAX_IMAGE_SIZE) {
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = () => {
-            const imageData = reader.result;  // Imagen en base64
-            chrome.storage.local.set({ [key]: imageData }, () => {
-                alert('Imagen subida con éxito.');
-
-                // Enviar un mensaje a newtab.html para actualizar la imagen
-                chrome.runtime.sendMessage({ action: 'updateImages' });
-            });
+            const imageData = reader.result; // Imagen en base64
+            if (file.type === 'image/gif') {
+                // No comprimir GIFs, almacenarlos directamente
+                storeImage(imageData, key);
+            } else {
+                // Comprimir JPEGs y PNGs
+                compressImage(imageData, 0.8, (compressedData) => {
+                    storeImage(compressedData, key);
+                });
+            }
         };
         reader.readAsDataURL(file);
     }
 
-    mainImageUploadBtn.addEventListener('click', () => {
-        handleImageUpload(mainImageUpload, 'mainImage');
-    });
+    function storeImage(imageData, key) {
+        try {
+            chrome.storage.local.set({ [key]: imageData }, () => {
+                alert('Imagen subida con éxito.');
+                updateImages(key);
+            });
+        } catch (error) {
+            console.error('Error storing image:', error);
+        }
+    }
 
-    imageBannerUploadBtn.addEventListener('click', () => {
-        handleImageUpload(imageBannerUpload, 'imageBanner');
-    });
+    function compressImage(dataUrl, quality, callback) {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            callback(compressedDataUrl);
+        };
+    }
+
+    function registerImageUploadEvent(button, input, key) {
+        button.addEventListener('click', () => {
+            handleImageUpload(input, key);
+        });
+    }
+
+    registerImageUploadEvent(mainImageUploadBtn, mainImageUpload, 'mainImage');
+    registerImageUploadEvent(imageBannerUploadBtn, imageBannerUpload, 'imageBanner');
 
     clearImagesBtn.addEventListener('click', () => {
-        chrome.storage.local.remove(['mainImage', 'imageBanner'], () => {
-            alert('Imágenes personalizadas eliminadas.');
-            chrome.runtime.sendMessage({ action: 'updateImages' });
+        chrome.storage.local.get(['mainImage', 'imageBanner'], (data) => {
+            const itemsToRemove = [];
+            if (data.mainImage) {
+                itemsToRemove.push('mainImage');
+            }
+            if (data.imageBanner) {
+                itemsToRemove.push('imageBanner');
+            }
+            if (itemsToRemove.length === 0) {
+                alert('No hay imágenes por eliminar.');
+            } else {
+                chrome.storage.local.remove(itemsToRemove, () => {
+                    alert('Imágenes personalizadas eliminadas.');
+                    updateImages();
+                });
+            }
         });
     });
+
+    function updateImages(key) {
+        try {
+            if (key === 'mainImage' || !key) {
+                chrome.storage.local.get('mainImage', (data) => {
+                    const mainImageElement = document.getElementById('main-image');
+                    if (mainImageElement) {
+                        mainImageElement.src = data.mainImage ? data.mainImage : '';
+                    }
+                });
+            }
+            if (key === 'imageBanner' || !key) {
+                chrome.storage.local.get('imageBanner', (data) => {
+                    const imageBannerElement = document.getElementById('image-banner');
+                    if (imageBannerElement) {
+                        imageBannerElement.src = data.imageBanner ? data.imageBanner : '';
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error updating images:', error);
+        }
+    }
 
     function initializeLinks() {
         chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
@@ -85,19 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     toggleAnimeFetch.addEventListener('change', () => {
         const isDisabled = toggleAnimeFetch.checked;
-        chrome.storage.sync.set({ disableAnimeFetch: isDisabled }, () => {
-            // Enviar mensaje a script.js para actualizar la imagen
-            chrome.runtime.sendMessage({ action: 'toggleAnime' });
-        });
+        chrome.storage.sync.set({ disableAnimeFetch: isDisabled });
     });
 
     initializeLinks();
 
     toggleGithub.addEventListener('change', () => {
         const isHidden = toggleGithub.checked;
-        chrome.storage.sync.set({ hideGithub: isHidden }, () => {
-            chrome.runtime.sendMessage({ action: 'toggleGithub', hideGithub: isHidden });
-        });
+        chrome.storage.sync.set({ hideGithub: isHidden });
     });
 
     resetButton.addEventListener('click', () => {
@@ -291,4 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createAddCategoryButton() {
         // Implement this function to create a button that allows adding new categories
     }
+
+    // Inicializar imágenes personalizadas en la carga de la página
+    updateImages();
 });
