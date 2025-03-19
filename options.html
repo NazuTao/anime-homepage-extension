@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opciones de la Extensión</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <h1>Opciones de la Extensión</h1>
+
+    <div id="links-container"></div>
+
+    <!-- ✅ Subida de imágenes personalizadas con botón de subir -->
+    <div class="upload-container">
+        <h3>Imagen principal</h3>
+        <input type="file" id="main-image-upload" accept="image/*">
+        <button id="main-image-upload-btn" style="margin-left: 10px; background: #4CAF50; color: white; padding: 5px 10px; border: none; cursor: pointer;">
+            Subir
+        </button>
+
+        <h3>Imagen sin enlaces</h3>
+        <input type="file" id="no-links-image-upload" accept="image/*">
+        <button id="no-links-image-upload-btn" style="margin-left: 10px; background: #4CAF50; color: white; padding: 5px 10px; border: none; cursor: pointer;">
+            Subir
+        </button>
+    </div>
+
+    <!-- ✅ Botón para borrar imágenes locales -->
+    <div style="margin: 10px 0;">
+        <button id="clear-images-button" style="background: #ff4d4d; color: white; padding: 10px; border: none; cursor: pointer;">
+            Borrar imágenes personalizadas
+        </button>
+    </div>
+
+    <!-- ✅ Switch para desactivar la búsqueda automática -->
+    <div class="switch-container">
+        <label class="switch">
+            <input type="checkbox" id="toggle-anime-fetch">
+            <span class="slider"></span>
+        </label>
+        <span>Desactivar imágenes random</span>
+    </div>
+
+<!-- ✅ Switch para mostrar/ocultar el botón de GitHub -->
+<div class="switch-container">
+    <label class="switch">
+        <input type="checkbox" id="toggle-github">
+        <span class="slider"></span>
+    </label>
+    <span id="github-label">Desactivar icono de GitHub</span>
+</div>
+    <button id="reset-button" style="margin-top: 10px; background: #ff4d4d; color: white;">Restablecer Categorías</button>
+    
+    <script src="options.js"></script>
+</body>
+</html>
