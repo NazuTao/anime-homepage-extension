@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const linksContainer = document.getElementById('links-container');
     const resetButton = document.getElementById('reset-button');
+    const toggleGithub = document.getElementById('toggle-github');
 
     const defaultLinks = {
         "random": [
@@ -26,18 +27,39 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
 
-    // ✅ Inicializar enlaces
+    // ✅ Inicializar enlaces y estado del switch de GitHub
     function initializeLinks() {
-        chrome.storage.sync.get('links', (data) => {
+        chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
             if (!data.links) {
                 chrome.storage.sync.set({ links: defaultLinks }, loadLinks);
             } else {
                 loadLinks();
             }
+            
+            // ✅ Inicializar el estado del switch
+            const isHidden = data.hideGithub ?? false;
+            toggleGithub.checked = isHidden;
         });
     }
+    const toggleAnimeFetch = document.getElementById('toggle-anime-fetch');
 
+    // Inicializar el estado del switch
+    chrome.storage.sync.get('disableAnimeFetch', (data) => {
+        toggleAnimeFetch.checked = data.disableAnimeFetch ?? false;
+    });
+    
+    // Guardar el estado del switch
+    toggleAnimeFetch.addEventListener('change', () => {
+        const isDisabled = toggleAnimeFetch.checked;
+        chrome.storage.sync.set({ disableAnimeFetch: isDisabled });
+    });
     initializeLinks();
+
+    // ✅ Guardar el estado del switch de GitHub
+    toggleGithub.addEventListener('change', () => {
+        const isHidden = toggleGithub.checked;
+        chrome.storage.sync.set({ hideGithub: isHidden }, loadLinks);
+    });
 
     // ✅ Restablecer a valores predeterminados
     resetButton.addEventListener('click', () => {
@@ -48,8 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadLinks() {
         linksContainer.innerHTML = '';
 
-        chrome.storage.sync.get('links', (data) => {
+        chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
             const links = data.links || {};
+            const hideGithub = data.hideGithub ?? false;
 
             if (Object.keys(links).length === 0) {
                 createAddCategoryButton();
@@ -86,12 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 addLinkBtn.textContent = 'Agregar Enlace';
                 addLinkBtn.className = 'add-link-btn';
 
-                // ✅ Deshabilitar el botón si hay 5 enlaces
                 if (links[category].length >= 5) {
                     addLinkBtn.disabled = true;
                 }
 
-                // ✅ Agregar evento para agregar enlace
                 addLinkBtn.addEventListener('click', () => {
                     addNewLink(category);
                 });
@@ -99,6 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ul = document.createElement('ul');
 
                 links[category].forEach((link, index) => {
+                    // ✅ Ocultar el enlace de GitHub si el switch está activado
+                    if (hideGithub && link.name.toLowerCase() === 'github') {
+                        return; 
+                    }
+
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <input type="text" value="${link.name}" class="link-name" />
@@ -171,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ✅ Normalizar URL (agregar https:// si falta)
+    // ✅ Normalizar URL
     function normalizeUrl(url) {
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
             return `https://${url}`;
@@ -221,20 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ✅ Eliminar enlace y categoría vacía
+    // ✅ Eliminar enlace
     function deleteLink(category, index) {
         chrome.storage.sync.get('links', (data) => {
             const links = data.links || {};
-
-            if (links[category]) {
-                links[category].splice(index, 1);
-
-                if (links[category].length === 0) {
-                    delete links[category];
-                }
-
-                chrome.storage.sync.set({ links }, loadLinks);
-            }
+            links[category].splice(index, 1);
+            chrome.storage.sync.set({ links }, loadLinks);
         });
     }
 });

@@ -111,3 +111,18 @@ body {
   height: 100%;
   object-fit: cover;       /* Ajuste para llenar el contenedor sin deformarse */
 }
+/* Tooltip flotante */
+.tooltip-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  z-index: 1000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tooltip-container:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}

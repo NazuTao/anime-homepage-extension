@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const linksContainer = document.querySelector('.links');
-    const noLinksImage = document.getElementById('no-links-image');  // 👉 Nueva imagen
+    const noLinksImage = document.getElementById('no-links-image');  
+    const githubButton = document.querySelector('.tooltip-container');  
+    const animeImage = document.getElementById('anime-image');  
 
     // ✅ Búsqueda instantánea
     searchInput.addEventListener('keypress', (event) => {
@@ -36,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     actualizarFechaHora();
     setInterval(actualizarFechaHora, 1000);
 
-    // ✅ Función para cargar enlaces
+    // ✅ Cargar enlaces
     function loadLinks() {
         linksContainer.innerHTML = '';
 
@@ -44,12 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const links = data.links || {};
 
             if (Object.keys(links).length === 0) {
-                // 👉 Mostrar imagen si no hay categorías
                 noLinksImage.style.display = 'block';
                 return;
             }
 
-            noLinksImage.style.display = 'none';  // Ocultar imagen si hay enlaces
+            noLinksImage.style.display = 'none'; 
 
             for (const category in links) {
                 const categoryDiv = document.createElement('div');
@@ -83,19 +84,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadLinks();
 
-    // ✅ Función para obtener imágenes de anime aleatorias
+    // ✅ Cargar solo la imagen local si la búsqueda está desactivada
+    function loadImage() {
+        chrome.storage.local.get(['customMainImage'], (data) => {
+            const customImage = data.customMainImage || 'animegirl.jpg';
+    
+            // Verificar si la búsqueda automática está desactivada
+            chrome.storage.sync.get('disableAnimeFetch', (syncData) => {
+                if (syncData.disableAnimeFetch) {
+                    animeImage.src = customImage;  // Mostrar imagen local si la búsqueda está desactivada
+                } else {
+                    fetchRandomAnimeImage();
+                }
+            });
+        });
+    }
+
+    // ✅ Obtener imágenes de anime aleatorias
     function fetchRandomAnimeImage() {
         fetch('https://api.waifu.pics/sfw/waifu')
             .then(response => response.json())
             .then(data => {
-                const animeImage = document.getElementById('anime-image');
                 animeImage.src = data.url;
+                chrome.storage.local.set({ lastAnimeImage: data.url });
             })
             .catch(() => {
-                const animeImage = document.getElementById('anime-image');
-                animeImage.src = 'animegirl.jpg';  // Imagen local por defecto
+                animeImage.src = 'animegirl.jpg';
             });
     }
 
-    fetchRandomAnimeImage();
+    // ✅ Mostrar/ocultar GitHub según la configuración correcta
+    function updateGithubVisibility() {
+        chrome.storage.sync.get('hideGithub', (data) => {
+            const hideGithub = data.hideGithub ?? false;
+
+            // ✅ Si `hideGithub` es `true`, oculta el ícono
+            githubButton.style.display = hideGithub ? 'none' : 'block';
+        });
+    }
+
+    // ✅ Llamar a la función inicial para mostrar/ocultar el ícono de GitHub
+    updateGithubVisibility();
+
+    // ✅ Escuchar cambios dinámicos en el almacenamiento
+    chrome.storage.onChanged.addListener((changes) => {
+        if (changes.hideGithub) {
+            updateGithubVisibility();
+        }
+    });
+
+    // ✅ Inicializar la imagen cargada
+    loadImage();
 });
