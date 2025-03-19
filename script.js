@@ -1,9 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const linksContainer = document.querySelector('.links');
-    const noLinksImage = document.getElementById('no-links-image');  
-    const githubButton = document.querySelector('.tooltip-container');  
-    const animeImage = document.getElementById('anime-image');  
+    const noLinksImage = document.getElementById('no-links-image');
+    const githubButton = document.querySelector('.tooltip-container');
+    const animeImage = document.getElementById('anime-image');
+
+    // ✅ Cargar las imágenes personalizadas desde `chrome.storage.local`
+    function loadCustomImages() {
+        chrome.storage.local.get(['mainImage', 'noLinksImage'], (data) => {
+            if (data.mainImage) {
+                animeImage.src = data.mainImage;  // ✅ Imagen personalizada principal
+            } else {
+                animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');  // Imagen por defecto
+            }
+
+            if (data.noLinksImage) {
+                noLinksImage.src = data.noLinksImage;  // ✅ Imagen personalizada sin enlaces
+            } else {
+                noLinksImage.src = chrome.runtime.getURL('images/default-anime.jpg');  // Imagen por defecto
+            }
+        });
+    }
+
+    // ✅ Verificar el estado del switch al cargar la página
+    chrome.storage.sync.get('disableAnimeFetch', (data) => {
+        const isDisabled = data.disableAnimeFetch ?? false;
+
+        if (isDisabled) {
+            loadCustomImages();  // ✅ Cargar imágenes locales si el switch está activado
+        } else {
+            loadImage();  // ✅ Imagen aleatoria si el switch está apagado
+        }
+    });
 
     // ✅ Búsqueda instantánea
     searchInput.addEventListener('keypress', (event) => {
@@ -50,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            noLinksImage.style.display = 'none'; 
+            noLinksImage.style.display = 'none';
 
             for (const category in links) {
                 const categoryDiv = document.createElement('div');
@@ -84,19 +112,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadLinks();
 
-    // ✅ Cargar solo la imagen local si la búsqueda está desactivada
+    // ✅ Mostrar imagen local o aleatoria según el estado del switch
     function loadImage() {
-        chrome.storage.local.get(['customMainImage'], (data) => {
-            const customImage = data.customMainImage || 'animegirl.jpg';
-    
-            // Verificar si la búsqueda automática está desactivada
-            chrome.storage.sync.get('disableAnimeFetch', (syncData) => {
-                if (syncData.disableAnimeFetch) {
-                    animeImage.src = customImage;  // Mostrar imagen local si la búsqueda está desactivada
-                } else {
-                    fetchRandomAnimeImage();
-                }
-            });
+        chrome.storage.sync.get('disableAnimeFetch', (config) => {
+            const isDisabled = config.disableAnimeFetch ?? false;
+
+            if (isDisabled) {
+                loadCustomImages();  // ✅ Cargar imágenes locales
+            } else {
+                fetchRandomAnimeImage();  // ✅ Imagen aleatoria
+            }
         });
     }
 
@@ -106,33 +131,54 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 animeImage.src = data.url;
-                chrome.storage.local.set({ lastAnimeImage: data.url });
             })
             .catch(() => {
-                animeImage.src = 'animegirl.jpg';
+                animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');
             });
     }
 
-    // ✅ Mostrar/ocultar GitHub según la configuración correcta
+    // ✅ Mostrar/ocultar GitHub según la configuración
     function updateGithubVisibility() {
         chrome.storage.sync.get('hideGithub', (data) => {
             const hideGithub = data.hideGithub ?? false;
-
-            // ✅ Si `hideGithub` es `true`, oculta el ícono
             githubButton.style.display = hideGithub ? 'none' : 'block';
         });
     }
 
-    // ✅ Llamar a la función inicial para mostrar/ocultar el ícono de GitHub
     updateGithubVisibility();
 
     // ✅ Escuchar cambios dinámicos en el almacenamiento
     chrome.storage.onChanged.addListener((changes) => {
+        if (changes.mainImage || changes.noLinksImage) {
+            loadCustomImages();  // ✅ Actualizar imágenes personalizadas
+        }
+
         if (changes.hideGithub) {
             updateGithubVisibility();
         }
+
+        if (changes.disableAnimeFetch) {
+            loadImage();  // ✅ Actualizar la imagen según el estado del switch
+        }
     });
 
-    // ✅ Inicializar la imagen cargada
+    // ✅ Escuchar mensajes desde `options.js`
+    chrome.runtime.onMessage.addListener((message) => {
+        if (message.action === 'updateImages') {
+            loadCustomImages();  // ✅ Actualizar las imágenes cuando se suban
+        }
+
+        if (message.action === 'toggleAnime') {
+            const isDisabled = message.disabled;
+
+            if (isDisabled) {
+                loadCustomImages();  // ✅ Imagen local si el switch está activado
+            } else {
+                loadImage();  // ✅ Buscar aleatoria si está desactivado
+            }
+        }
+    });
+
+    // ✅ Inicializar la imagen correctamente
     loadImage();
 });

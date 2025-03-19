@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const linksContainer = document.getElementById('links-container');
     const resetButton = document.getElementById('reset-button');
     const toggleGithub = document.getElementById('toggle-github');
+    const mainImageUpload = document.getElementById('main-image-upload');
+    const mainImageUploadBtn = document.getElementById('main-image-upload-btn');
+    const noLinksImageUpload = document.getElementById('no-links-image-upload');
+    const noLinksImageUploadBtn = document.getElementById('no-links-image-upload-btn');
+    const clearImagesBtn = document.getElementById('clear-images-button');
 
     const defaultLinks = {
         "random": [
@@ -26,7 +31,47 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: "Jkanime", url: "https://jkanime.net/" }
         ]
     };
+   // ✅ Función para convertir la imagen a base64 y guardarla en `chrome.storage.local`
+   function handleImageUpload(input, key) {
+    const file = input.files[0];
+    if (!file) return;
 
+    const reader = new FileReader();
+    reader.onload = () => {
+        const imageData = reader.result;  // Imagen en base64
+        chrome.storage.local.set({ [key]: imageData }, () => {
+            alert('Imagen subida con éxito.');
+
+            // ✅ Enviar un mensaje a `newtab.html` para actualizar la imagen
+            chrome.runtime.sendMessage({ action: 'updateImages' });
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+// ✅ Manejadores de eventos para subir las imágenes
+mainImageUploadBtn.addEventListener('click', () => {
+    handleImageUpload(mainImageUpload, 'mainImage');
+});
+
+noLinksImageUploadBtn.addEventListener('click', () => {
+    handleImageUpload(noLinksImageUpload, 'noLinksImage');
+});
+
+clearImagesBtn.addEventListener('click', () => {
+    chrome.storage.local.remove(['mainImage', 'noLinksImage'], () => {
+        alert('Imágenes personalizadas eliminadas.');
+
+        // ✅ Restaurar la imagen local predeterminada después de borrar
+        chrome.runtime.sendMessage({ action: 'updateImages' });
+
+        // ✅ Mostrar la imagen local predeterminada al borrar
+        chrome.storage.local.set({
+            mainImage: 'animegirl.jpg',
+            noLinksImage: 'animegirl.jpg'
+        });
+    });
+});
     // ✅ Inicializar enlaces y estado del switch de GitHub
     function initializeLinks() {
         chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
