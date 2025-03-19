@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleGithub = document.getElementById('toggle-github');
     const mainImageUpload = document.getElementById('main-image-upload');
     const mainImageUploadBtn = document.getElementById('main-image-upload-btn');
-    const noLinksImageUpload = document.getElementById('no-links-image-upload');
-    const noLinksImageUploadBtn = document.getElementById('no-links-image-upload-btn');
+    const imageBannerUpload = document.getElementById('image-banner-upload');
+    const imageBannerUploadBtn = document.getElementById('image-banner-upload-btn');
     const clearImagesBtn = document.getElementById('clear-images-button');
 
     const defaultLinks = {
@@ -53,12 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
         handleImageUpload(mainImageUpload, 'mainImage');
     });
 
-    noLinksImageUploadBtn.addEventListener('click', () => {
-        handleImageUpload(noLinksImageUpload, 'noLinksImage');
+    imageBannerUploadBtn.addEventListener('click', () => {
+        handleImageUpload(imageBannerUpload, 'imageBanner');
     });
 
     clearImagesBtn.addEventListener('click', () => {
-        chrome.storage.local.remove(['mainImage', 'noLinksImage'], () => {
+        chrome.storage.local.remove(['mainImage', 'imageBanner'], () => {
             alert('Imágenes personalizadas eliminadas.');
             chrome.runtime.sendMessage({ action: 'updateImages' });
         });
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadLinks() {
         linksContainer.innerHTML = '';
 
-        chrome.storage.sync.get('links', (data) => {
+        chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
             const links = data.links || {};
 
             if (Object.keys(links).length === 0) {

@@ -93,7 +93,7 @@ h1 {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 /* ✅ Contenedor para la imagen de "sin enlaces" */
-.no-links-image {
+.image-banner {
 display: flex;
 justify-content: center;
 align-items: center;
@@ -107,7 +107,7 @@ box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 margin: 20px auto;
 }
 
-.no-links-image img {
+.image-banner img {
 width: 100%;
 height: 100%;
 object-fit: cover;       /* Ajuste para llenar el contenedor sin deformarse */

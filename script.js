@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const linksContainer = document.querySelector('.links');
-    const noLinksImage = document.getElementById('no-links-image');
+    const imageBanner = document.getElementById('image-banner');
     const githubButton = document.querySelector('.tooltip-container');
     const animeImage = document.getElementById('anime-image');
-    const noLinksImgElement = noLinksImage.querySelector('img');
+    const imageBannerElement = imageBanner.querySelector('img');
 
     // ✅ Cargar imágenes personalizadas o restaurar las predeterminadas
     function loadCustomImages(callback) {
-        chrome.storage.local.get(['mainImage', 'noLinksImage'], (data) => {
+        chrome.storage.local.get(['mainImage', 'imageBanner'], (data) => {
             let hasCustomImage = false;
 
             // ✅ Imagen principal
@@ -19,14 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');
             }
 
-            // ✅ Imagen "no links"
-            if (data.noLinksImage) {
+            // ✅ Imagen "image banner"
+            if (data.imageBanner) {
                 hasCustomImage = true;
-                noLinksImgElement.src = data.noLinksImage;  // ✅ Aplicar personalizada
-                noLinksImage.style.display = 'block';
+                imageBannerElement.src = data.imageBanner;  // ✅ Aplicar personalizada
+                imageBanner.style.display = 'block';
             } else {
-                noLinksImgElement.src = chrome.runtime.getURL('images/default-anime.jpg');
-                noLinksImage.style.display = 'block';  // ✅ Mostrar la predeterminada
+                imageBannerElement.src = chrome.runtime.getURL('images/default-anime.jpg');
+                imageBanner.style.display = 'block';  // ✅ Mostrar la predeterminada
             }
 
             if (callback) callback(hasCustomImage);
@@ -89,12 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const links = data.links || {};
 
             if (Object.keys(links).length === 0) {
-                noLinksImage.style.display = 'block';
-                fetchRandomAnimeImage(true); // Cargar imagen aleatoria para "no links"
+                imageBanner.style.display = 'block';
+                fetchRandomAnimeImage(true); // Cargar imagen aleatoria para "image banner"
                 return;
             }
 
-            noLinksImage.style.display = 'none';
+            imageBanner.style.display = 'none';
 
             for (const category in links) {
                 const categoryDiv = document.createElement('div');
@@ -129,23 +129,23 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLinks();
 
     // ✅ Obtener imágenes de anime aleatorias
-    function fetchRandomAnimeImage(forNoLinks = false) {
+    function fetchRandomAnimeImage(forImageBanner = false) {
         fetch('https://api.waifu.pics/sfw/waifu')
             .then(response => response.json())
             .then(data => {
                 const img = new Image();
                 img.src = data.url;
                 img.onload = () => {
-                    if (forNoLinks) {
-                        noLinksImgElement.src = data.url;
+                    if (forImageBanner) {
+                        imageBannerElement.src = data.url;
                     } else {
                         animeImage.src = data.url;
                     }
                 };
             })
             .catch(() => {
-                if (forNoLinks) {
-                    noLinksImgElement.src = '';  // Si falla, mantenerlo vacío
+                if (forImageBanner) {
+                    imageBannerElement.src = '';  // Si falla, mantenerlo vacío
                 } else {
                     animeImage.src = '';  // Si falla, mantenerlo vacío
                 }
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ✅ Escuchar cambios dinámicos en el almacenamiento
     chrome.storage.onChanged.addListener((changes) => {
-        if (changes.mainImage || changes.noLinksImage) {
+        if (changes.mainImage || changes.imageBanner) {
             loadCustomImages();  // ✅ Actualizar imágenes personalizadas
         }
 
