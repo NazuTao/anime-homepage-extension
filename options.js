@@ -95,7 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     toggleGithub.addEventListener('change', () => {
         const isHidden = toggleGithub.checked;
-        chrome.storage.sync.set({ hideGithub: isHidden }, loadLinks);
+        chrome.storage.sync.set({ hideGithub: isHidden }, () => {
+            chrome.runtime.sendMessage({ action: 'toggleGithub', hideGithub: isHidden });
+        });
     });
 
     resetButton.addEventListener('click', () => {
@@ -105,9 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadLinks() {
         linksContainer.innerHTML = '';
 
-        chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
+        chrome.storage.sync.get('links', (data) => {
             const links = data.links || {};
-            const hideGithub = data.hideGithub ?? false;
 
             if (Object.keys(links).length === 0) {
                 createAddCategoryButton();
@@ -155,10 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ul = document.createElement('ul');
 
                 links[category].forEach((link, index) => {
-                    if (hideGithub && link.name.toLowerCase() === 'github') {
-                        return; 
-                    }
-
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <input type="text" value="${link.name}" class="link-name" />
@@ -279,6 +276,14 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.sync.get('links', (data) => {
             const links = data.links || {};
             links[category].splice(index, 1);
+
+            console.log(`Category ${category} now has ${links[category].length} links`); // Línea de depuración
+
+            if (links[category].length === 0) {
+                delete links[category];
+                console.log(`Category ${category} deleted`); // Línea de depuración
+            }
+
             chrome.storage.sync.set({ links }, loadLinks);
         });
     }
