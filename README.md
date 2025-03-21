@@ -2,6 +2,19 @@
 
 ![Custom Home Page for Chrome](https://github.com/user-attachments/assets/a22c79d3-06a7-4dbf-a5ae-d791e603a259)
 
+## Imágenes de la Extensión
+
+A continuación, se muestran algunas capturas de pantalla de la extensión en acción:
+
+![Captura de pantalla 1](https://imgur.com/nuVuhFt)
+*Descripción de la captura de pantalla 1*
+
+![Captura de pantalla 2](https://imgur.com/hVu5qGX)
+*Descripción de la captura de pantalla 2*
+
+![Captura de pantalla 3](https://imgur.com/odJUpi1)
+*Descripción de la captura de pantalla 3*
+
 ## Descripción
 
 Custom Home Page for Chrome te permite personalizar las nuevas pestañas del navegador con imágenes y enlaces. Dale un toque personal a tu navegador y accede rápidamente a tus sitios favoritos.
