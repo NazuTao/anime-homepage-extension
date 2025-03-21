@@ -20,6 +20,7 @@ Custom Home Page for Chrome te permite personalizar las nuevas pestañas del nav
 
 - Personaliza la página de nueva pestaña con tus propias imágenes y enlaces.
 - Guarda tus configuraciones en el almacenamiento del navegador.
+- En las opciones de la extension pueden personalizar las imagenes, enlaces y categorias que aparecen en la pagina.
 
 ## Instalación
 
