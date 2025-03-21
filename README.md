@@ -7,13 +7,13 @@
 A continuación, se muestran algunas capturas de pantalla de la extensión en acción:
 
 ### Ejemplo 1
-![Captura de pantalla 1](https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo1.png)
+<img src="https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo1.png" alt="Captura de pantalla 1" width="400">
 
 ### Ejemplo 2
-![Captura de pantalla 2](https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo2.png)
+<img src="https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo2.png" alt="Captura de pantalla 2" width="400">
 
 ### Ejemplo 3
-![Captura de pantalla 3](https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo3.png)
+<img src="https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo3.png" alt="Captura de pantalla 3" width="400">
 
 ## Descripción
 
