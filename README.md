@@ -1,4 +1,4 @@
-# Custom Home Page for Chrome
+# Custom Home Page para el navegador
 
 ![Custom Home Page for Chrome](https://github.com/NazuTao/home-page-extension-images/blob/main/ejemplo1.png)
 
@@ -14,7 +14,7 @@ A continuación, se muestran algunas capturas de pantalla de la extensión en ac
 
 ## Descripción
 
-Custom Home Page for Chrome te permite personalizar las nuevas pestañas del navegador con imágenes y enlaces. Dale un toque personal a tu navegador y accede rápidamente a tus sitios favoritos.
+Custom Home Page te permite personalizar las nuevas pestañas del navegador con imágenes y enlaces. Dale un toque personal a tu navegador y accede rápidamente a tus sitios favoritos.
 
 ## Características
 
@@ -24,10 +24,12 @@ Custom Home Page for Chrome te permite personalizar las nuevas pestañas del nav
 
 ## Instalación
 
+Por ahora deberia funcionar para Google chrome, Edge y Brave.
+
 Sigue estos pasos para instalar la extensión desde GitHub como una extensión no empaquetada:
 
 1. Clona este repositorio o descarga el código fuente como un archivo ZIP y descomprímelo.
-2. Abre Chrome y navega a `chrome://extensions/`.
+2. Abre Chrome y navega a `chrome://extensions/`. (esto varia si es otro navegador, pero debes ir al apartado de extensiones)
 3. Activa el "Modo de desarrollador" en la esquina superior derecha.
 4. Haz clic en el botón "Cargar descomprimida" y selecciona la carpeta donde descomprimiste el código fuente.
 5. La extensión ahora debería aparecer en la lista de extensiones y estar lista para usar.
