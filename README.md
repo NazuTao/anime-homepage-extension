@@ -1,6 +1,7 @@
 # Custom Home Page for Chrome
 
-![Custom Home Page for Chrome](images/default-banner.png)
+![Custom Home Page for Chrome](![image](https://github.com/user-attachments/assets/a22c79d3-06a7-4dbf-a5ae-d791e603a259)
+)
 
 ## Descripción
 
