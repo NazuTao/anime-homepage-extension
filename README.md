@@ -1,6 +1,6 @@
 # Custom Home Page for Chrome
 
-![Custom Home Page for Chrome](images/banner.png)
+![Custom Home Page for Chrome](images/default-banner.png)
 
 ## Descripción
 
