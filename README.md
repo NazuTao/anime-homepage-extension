@@ -12,6 +12,8 @@ A continuación, se muestran algunas capturas de pantalla de la extensión en ac
 
 <img src="https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo3.png" alt="Captura de pantalla 3" width="550">
 
+<img src="https://github.com/NazuTao/anime-homepage-extension/blob/main/images/opciones.gif" alt="ejemplo de opciones" width="550">
+
 ## Descripción
 
 Custom Home Page for Chrome te permite personalizar las nuevas pestañas del navegador con imágenes y enlaces. Dale un toque personal a tu navegador y accede rápidamente a tus sitios favoritos.
