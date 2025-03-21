@@ -1,16 +1,16 @@
 # Custom Home Page for Chrome
 
-![Custom Home Page for Chrome](https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo1.png)
+![Custom Home Page for Chrome](https://github.com/NazuTao/home-page-extension-images/blob/main/ejemplo1.png)
 
 ## Imágenes de la Extensión
 
 A continuación, se muestran algunas capturas de pantalla de la extensión en acción:
 
-<img src="https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo2.png" alt="Captura de pantalla 2" width="550">
+<img src="https://github.com/NazuTao/home-page-extension-images/blob/main/ejemplo2.png" alt="Captura de pantalla 2" width="550">
 
-<img src="https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo3.png" alt="Captura de pantalla 3" width="550">
+<img src="https://github.com/NazuTao/home-page-extension-images/blob/main/ejemplo3.png" alt="Captura de pantalla 3" width="550">
 
-<img src="https://github.com/NazuTao/anime-homepage-extension/blob/main/images/opciones.gif" alt="ejemplo de opciones" width="550">
+<img src="https://github.com/NazuTao/home-page-extension-images/blob/main/opciones.gif" alt="ejemplo de opciones" width="550">
 
 ## Descripción
 
