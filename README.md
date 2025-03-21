@@ -6,14 +6,14 @@
 
 A continuación, se muestran algunas capturas de pantalla de la extensión en acción:
 
-![Captura de pantalla 1](https://imgur.com/nuVuhFt)
-*Descripción de la captura de pantalla 1*
+### Ejemplo 1
+![Captura de pantalla 1](https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo1.png)
 
-![Captura de pantalla 2](https://imgur.com/hVu5qGX)
-*Descripción de la captura de pantalla 2*
+### Ejemplo 2
+![Captura de pantalla 2](https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo2.png)
 
-![Captura de pantalla 3](https://imgur.com/odJUpi1)
-*Descripción de la captura de pantalla 3*
+### Ejemplo 3
+![Captura de pantalla 3](https://github.com/NazuTao/anime-homepage-extension/blob/main/images/ejemplo3.png)
 
 ## Descripción
 
