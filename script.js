@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: "Jkanime", url: "https://jkanime.net/" }
         ]
     };
-
-    // ✅ Cargar imágenes personalizadas o restaurar las predeterminadas
     function loadCustomImages(callback) {
         chrome.storage.sync.get('hideBanner', (config) => {
             const hideBanner = config.hideBanner ?? false;
@@ -38,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
             chrome.storage.local.get(['mainImage', 'imageBanner'], (data) => {
                 let hasCustomImage = false;
 
-                // ✅ Imagen principal
                 if (data.mainImage) {
                     hasCustomImage = true;
                     animeImage.src = data.mainImage;
@@ -46,12 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     animeImage.src = chrome.runtime.getURL('images/default-anime.jpg');
                 }
 
-                // ✅ Imagen "image banner"
                 if (data.imageBanner) {
                     hasCustomImage = true;
-                    imageBannerElement.src = data.imageBanner;  // ✅ Aplicar personalizada
+                    imageBannerElement.src = data.imageBanner;
                 } else {
-                    imageBannerElement.src = chrome.runtime.getURL('images/default-banner.jpg');  // ✅ Mostrar la predeterminada
+                    imageBannerElement.src = chrome.runtime.getURL('images/default-banner.jpg');
                 }
 
                 imageBanner.style.display = hideBanner ? 'none' : 'block';
@@ -60,23 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-
-    // ✅ Verificar el estado del switch
     function loadImage() {
         chrome.storage.sync.get('disableAnimeFetch', (config) => {
             const isDisabled = config.disableAnimeFetch ?? false;
 
-            // ✅ Siempre cargar imagen aleatoria
             if (!isDisabled) {
                 fetchRandomAnimeImage();
             }
 
-            // ✅ Luego cargar imagen personalizada si existe
             loadCustomImages();
         });
     }
 
-    // ✅ Búsqueda instantánea
     searchInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
@@ -109,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
     actualizarFechaHora();
     setInterval(actualizarFechaHora, 1000);
 
-    // ✅ Cargar enlaces
     function loadLinks() {
         linksContainer.innerHTML = '';
 
@@ -153,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ✅ Inicializar categorías si no existen
     function initializeLinks() {
         chrome.storage.sync.get('links', (data) => {
             if (!data.links) {
@@ -166,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeLinks();
 
-    // ✅ Obtener imágenes de anime aleatorias
     function fetchRandomAnimeImage(forImageBanner = false) {
         fetch('https://api.waifu.pics/sfw/waifu')
             .then(response => response.json())
@@ -181,12 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(() => {
                 if (!forImageBanner) {
-                    animeImage.src = '';  // Si falla, mantenerlo vacío
+                    animeImage.src = ''; 
                 }
             });
     }
 
-    // ✅ Mostrar/ocultar GitHub según la configuración
     function updateGithubVisibility() {
         chrome.storage.sync.get('hideGithub', (data) => {
             const hideGithub = data.hideGithub ?? false;
@@ -196,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateGithubVisibility();
 
-    // ✅ Mostrar/ocultar imagen del banner según la configuración
     function updateBannerVisibility() {
         chrome.storage.sync.get('hideBanner', (data) => {
             const hideBanner = data.hideBanner ?? false;
@@ -206,10 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateBannerVisibility();
 
-    // ✅ Escuchar cambios dinámicos en el almacenamiento
     chrome.storage.onChanged.addListener((changes) => {
         if (changes.mainImage || changes.imageBanner) {
-            loadCustomImages();  // ✅ Actualizar imágenes personalizadas
+            loadCustomImages(); 
         }
 
         if (changes.hideGithub) {
@@ -217,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (changes.disableAnimeFetch) {
-            loadImage();  // ✅ Actualizar la imagen según el estado del switch
+            loadImage(); 
         }
 
         if (changes.hideBanner) {
@@ -225,10 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ✅ Escuchar mensajes desde `options.js`
     chrome.runtime.onMessage.addListener((message) => {
         if (message.action === 'updateImages') {
-            loadCustomImages();  // ✅ Actualizar las imágenes cuando se suban
+            loadCustomImages();
         }
 
         if (message.action === 'toggleAnime') {
@@ -236,6 +220,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ✅ Inicializar la imagen correctamente
     loadImage();
 });

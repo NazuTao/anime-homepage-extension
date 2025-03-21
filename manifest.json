@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Custom Home page for chrome",
     "version": "2.0",
-    "description": "Permite personalizar las nuevas pestañas de chrome con imagenes y enlaces.",
+    "description": "Permite personalizar las nuevas pestañas del navegador con imagenes y enlaces.",
     
     "permissions": [
         "storage"
@@ -16,5 +16,9 @@
 
     "action": {
         "default_popup": "newtab.html"
+    },
+
+    "icons": {
+        "128": "images/icon.png"
     }
 }

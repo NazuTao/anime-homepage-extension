@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageBannerUploadBtn = document.getElementById('image-banner-upload-btn');
     const clearImagesBtn = document.getElementById('clear-images-button');
 
-    const MAX_IMAGE_SIZE = 6 * 1024 * 1024; // 6 MB
+    const MAX_IMAGE_SIZE = 6 * 1024 * 1024;
     const defaultLinks = {
         "random": [
             { name: "YouTube", url: "https://www.youtube.com" },
@@ -45,12 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const reader = new FileReader();
         reader.onload = () => {
-            const imageData = reader.result; // Imagen en base64
+            const imageData = reader.result;
             if (file.type === 'image/gif') {
-                // No comprimir GIFs, almacenarlos directamente
                 storeImage(imageData, key);
             } else {
-                // Comprimir JPEGs y PNGs
                 compressImage(imageData, 0.8, (compressedData) => {
                     storeImage(compressedData, key);
                 });
@@ -361,11 +359,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const links = data.links || {};
             links[category].splice(index, 1);
 
-            console.log(`Category ${category} now has ${links[category].length} links`); // Línea de depuración
+            console.log(`Category ${category} now has ${links[category].length} links`);
 
             if (links[category].length === 0) {
                 delete links[category];
-                console.log(`Category ${category} deleted`); // Línea de depuración
+                console.log(`Category ${category} deleted`);
             }
 
             chrome.storage.sync.set({ links }, loadLinks);
@@ -373,9 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createAddCategoryButton() {
-        // Implement this function to create a button that allows adding new categories
     }
 
-    // Inicializar imágenes personalizadas en la carga de la página
     updateImages();
 });
