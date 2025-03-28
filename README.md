@@ -24,6 +24,8 @@ Custom Home Page te permite personalizar las nuevas pestañas del navegador con 
 
 ## Instalación
 
+Extension para edge: https://microsoftedge.microsoft.com/addons/detail/anime-custom-home-page/icpbkfpgmfldjiiepfdgmaadgbhklnig
+
 Por ahora deberia funcionar para Google chrome, Edge y Brave.
 
 Sigue estos pasos para instalar la extensión desde GitHub como una extensión no empaquetada:
