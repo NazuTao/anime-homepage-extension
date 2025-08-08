@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Custom Home page for chrome",
-    "version": "2.0",
+    "version": "3.0",
     "description": "Permite personalizar las nuevas pestañas del navegador con imagenes y enlaces.",
     
     "permissions": [
