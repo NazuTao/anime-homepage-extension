@@ -32,24 +32,26 @@
             padding: 15px;
             border-radius: 5px;
         }
+        
         .reset-btn {
-    background-color: #ff4d4d;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px;
-}
+            background-color: #ff4d4d;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
 
-.reset-btn:hover {
-    background-color: #e60000;
-}
+        .reset-btn:hover {
+            background-color: #e60000;
+        }
 
-.action-buttons {
-    display: flex;
-    margin-bottom: 15px;
-}
+        .action-buttons {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
         .category-edit {
             display: flex;
             margin-bottom: 10px;
@@ -125,130 +127,24 @@
             color: white;
         }
         
-        .color-picker {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .color-label {
-            width: 150px;
-        }
-        
-        .color-input {
-            width: 80px;
-            height: 30px;
-            border: 1px solid #ddd;
-        }
-        
-        .apply-colors {
-            background-color: #673AB7;
-            color: white;
-            padding: 10px 15px;
-            margin-top: 10px;
-        }
-        
         #add-category-btn {
             background-color: #FF9800;
             color: white;
             padding: 10px 15px;
             margin-bottom: 20px;
         }
-        .form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-control {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.btn-reset {
-    background-color: #ff4d4d;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-.btn-reset:hover {
-    background-color: #e60000;
-}
-
-.btn-save {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-}
     </style>
 </head>
 <body>
-    <h1>Editor de Categorías y Colores</h1>
-    
-   <div class="section">
-    <h2>Editar Categorías</h2>
-    <div class="action-buttons">
-        <button id="add-category-btn" class="btn-add">+ Añadir Categoría</button>
-        <button id="reset-button" class="btn-reset">↻ Restablecer Todo</button>
-    </div>
-    <div id="links-container"></div>
-</div>
-    
+    <h1>Editor de Categorías</h1>
     <div class="section">
-        <h2>Colores del Texto</h2>
-        <div class="color-picker">
-            <span class="color-label">Color de categorías:</span>
-            <input type="color" id="category-color" class="color-input" value="#c792ea">
+        <h2>Editar Categorías</h2>
+        <div class="action-buttons">
+            <button id="add-category-btn" class="btn-add">+ Añadir Categoría</button>
+            <button id="reset-button" class="btn-reset">↻ Restablecer Todo</button>
         </div>
-        <div class="color-picker">
-            <span class="color-label">Color de enlaces:</span>
-            <input type="color" id="link-color" class="color-input" value="#ffffff">
-        </div>
-        <div class="color-picker">
-            <span class="color-label">Color de texto de bienvenida:</span>
-            <input type="color" id="welcome-color" class="color-input" value="#ffffff">
-        </div>
-        <div class="color-picker">
-            <span class="color-label">Color de la hora:</span>
-            <input type="color" id="time-color" class="color-input" value="#ffffff">
-        </div>
-        <button id="apply-colors" class="apply-colors">Aplicar Colores</button>
+        <div id="links-container"></div>
     </div>
-    
-    <div class="section">
-    <h2>Texto de Bienvenida y Hora</h2>
-    <div class="form-group">
-        <label for="welcome-text">Texto de Bienvenida:</label>
-        <input type="text" id="welcome-text" class="form-control" value="¡Bienvenido de nuevo!">
-    </div>
-    
-    <div class="form-group">
-        <label>Color de Texto:</label>
-        <input type="color" id="welcome-color" value="#ffffff">
-    </div>
-    
-    <div class="form-group">
-        <label>Color de la Hora:</label>
-        <input type="color" id="time-color" value="#ffffff">
-    </div>
-    
-    <button id="save-welcome-settings" class="btn-save">Guardar Configuración</button>
-</div>
-    
     <script src="options.js"></script>
 </body>
 </html>
