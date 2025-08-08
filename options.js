@@ -2,9 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const linksContainer = document.getElementById('links-container');
     const addCategoryBtn = document.getElementById('add-category-btn');
     const resetButton = document.getElementById('reset-button');
-    const applyColorsBtn = document.getElementById('apply-colors');
-    const saveWelcomeSettingsBtn = document.getElementById('save-welcome-settings');
-    const welcomeTextInput = document.getElementById('welcome-text');
 
     const defaultLinks = {
         "anime": [
@@ -35,17 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addCategoryBtn.addEventListener('click', addNewCategory);
     resetButton.addEventListener('click', resetToDefault);
-    applyColorsBtn.addEventListener('click', saveTextColors);
-    saveWelcomeSettingsBtn.addEventListener('click', saveWelcomeSettings);
 
     function loadInitialConfig() {
         chrome.storage.sync.get([
             'links',
-            'categoryOrder',
-            'textColors',
-            'welcomeText',
-            'welcomeColor',
-            'timeColor'
+            'categoryOrder'
         ], (data) => {
             let links = data.links || defaultLinks;
             let order = data.categoryOrder || Object.keys(links);
@@ -53,15 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!order.includes(cat)) order.push(cat);
             });
             loadLinks(links, order);
-
-            const colors = data.textColors || {};
-            document.getElementById('category-color').value = colors.category || '#c792ea';
-            document.getElementById('link-color').value = colors.link || '#ffffff';
-            document.getElementById('welcome-color').value = colors.welcome || '#ffffff';
-            document.getElementById('time-color').value = colors.time || '#ffffff';
-            welcomeTextInput.value = data.welcomeText || '¡Bienvenido de nuevo!';
-            if (data.welcomeColor) document.getElementById('welcome-color').value = data.welcomeColor;
-            if (data.timeColor) document.getElementById('time-color').value = data.timeColor;
         });
     }
 
@@ -114,14 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const ul = document.createElement('ul');
         links.forEach(link => {
-            ul.appendChild(createLinkElement(link.name, link.url));
+            ul.appendChild(createLinkElement(link.name, link.url, ul));
         });
 
         const addLinkBtn = document.createElement('button');
         addLinkBtn.className = 'add-link-btn';
         addLinkBtn.textContent = '+ Añadir Enlace';
         addLinkBtn.addEventListener('click', () => {
-            ul.appendChild(createLinkElement('', ''));
+            ul.appendChild(createLinkElement('', '', ul));
         });
 
         saveCategoryBtn.addEventListener('click', () => {
@@ -177,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         linksContainer.appendChild(categoryDiv);
     }
 
-    function createLinkElement(name, url) {
+    function createLinkElement(name, url, ul) {
         const li = document.createElement('li');
         const nameInput = document.createElement('input');
         nameInput.type = 'text';
@@ -198,12 +180,11 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteLinkBtn.textContent = 'Eliminar';
 
         saveLinkBtn.addEventListener('click', () => {
-            const liParent = li.parentElement;
             const categoryDiv = li.closest('.category-container');
             const categoryInput = categoryDiv.querySelector('.category-name-input');
             const categoryName = categoryInput.value.trim();
             const newLinks = [];
-            liParent.querySelectorAll('li').forEach(l => {
+            ul.querySelectorAll('li').forEach(l => {
                 const n = l.querySelector('.link-name').value.trim();
                 let u = l.querySelector('.link-url').value.trim();
                 if (n && u) {
@@ -220,13 +201,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         deleteLinkBtn.addEventListener('click', () => {
             if (confirm('¿Eliminar este enlace?')) {
+                // Primero elimina el li del DOM
                 li.remove();
-                const liParent = li.parentElement;
-                const categoryDiv = li.closest('.category-container');
+                // Luego guarda el nuevo estado
+                const categoryDiv = ul.closest('.category-container');
                 const categoryInput = categoryDiv.querySelector('.category-name-input');
                 const categoryName = categoryInput.value.trim();
                 const newLinks = [];
-                liParent.querySelectorAll('li').forEach(l => {
+                ul.querySelectorAll('li').forEach(l => {
                     const n = l.querySelector('.link-name').value.trim();
                     let u = l.querySelector('.link-url').value.trim();
                     if (n && u) {
@@ -237,7 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 chrome.storage.sync.get(['links', 'categoryOrder'], (data) => {
                     const links = data.links || {};
                     links[categoryName] = newLinks;
-                    chrome.storage.sync.set({ links }, () => loadLinks(links, data.categoryOrder));
+                    chrome.storage.sync.set({ links }, () => {
+                        loadLinks(links, data.categoryOrder);
+                    });
                 });
             }
         });
@@ -279,57 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function saveTextColors() {
-        const textColors = {
-            category: document.getElementById('category-color').value,
-            link: document.getElementById('link-color').value,
-            welcome: document.getElementById('welcome-color').value,
-            time: document.getElementById('time-color').value
-        };
-        chrome.storage.sync.set({ textColors }, () => {
-            alert('Colores guardados correctamente');
-        });
-    }
-
-    function saveWelcomeSettings() {
-        const settings = {
-            welcomeText: welcomeTextInput.value.trim(),
-            welcomeColor: document.getElementById('welcome-color').value,
-            timeColor: document.getElementById('time-color').value,
-            textColors: {
-                category: document.getElementById('category-color').value,
-                link: document.getElementById('link-color').value,
-                welcome: document.getElementById('welcome-color').value,
-                time: document.getElementById('time-color').value
-            }
-        };
-        chrome.storage.sync.set(settings, () => {
-            alert('Configuración guardada correctamente');
-        });
-    }
-
     function resetToDefault() {
         if (confirm('¿Restablecer TODA la configuración a valores por defecto?')) {
             const defaultSettings = {
                 links: defaultLinks,
-                categoryOrder: defaultOrder,
-                textColors: {
-                    category: '#c792ea',
-                    link: '#ffffff',
-                    welcome: '#ffffff',
-                    time: '#ffffff'
-                },
-                welcomeText: '¡Bienvenido de nuevo!',
-                welcomeColor: '#ffffff',
-                timeColor: '#ffffff'
+                categoryOrder: defaultOrder
             };
             chrome.storage.sync.set(defaultSettings, () => {
                 loadLinks(defaultLinks, defaultOrder);
-                welcomeTextInput.value = defaultSettings.welcomeText;
-                document.getElementById('welcome-color').value = defaultSettings.welcomeColor;
-                document.getElementById('time-color').value = defaultSettings.timeColor;
-                document.getElementById('category-color').value = defaultSettings.textColors.category;
-                document.getElementById('link-color').value = defaultSettings.textColors.link;
                 alert('Configuración restablecida completamente');
             });
         }
