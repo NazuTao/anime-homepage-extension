@@ -201,9 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         deleteLinkBtn.addEventListener('click', () => {
             if (confirm('¿Eliminar este enlace?')) {
-                // Primero elimina el li del DOM
                 li.remove();
-                // Luego guarda el nuevo estado
                 const categoryDiv = ul.closest('.category-container');
                 const categoryInput = categoryDiv.querySelector('.category-name-input');
                 const categoryName = categoryInput.value.trim();
@@ -275,4 +273,5 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
 });
