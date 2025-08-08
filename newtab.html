@@ -1,37 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inicio ❄</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="menu-icon">
+    <img src="images/menu.png" alt="Menú" />
+  </div>
   <div class="container">
     <div class="content">
       <h1>¡Bienvenido de nuevo!</h1>
       <p class="date-time"></p>
-      <input type="text" class="search-bar" id="search-input" placeholder="Escribe algo para buscar en internet." required>
+      <input
+        type="text"
+        class="search-bar"
+        id="search-input"
+        placeholder="Escribe algo para buscar en internet."
+        required
+      />
 
       <div class="links-container">
         <div class="links"></div>
 
-        <div class="image-banner" id="image-banner" style="display: none;">
+        <div
+          class="image-banner"
+          id="image-banner"
+          style="display: none"
+        >
           <img src="images/default-banner.jpg" alt="Image Banner" />
         </div>
       </div>
     </div>
 
     <div class="image-container" id="image-container">
-      <img id="anime-image" src="" alt="Anime Image" style="background: transparent;">
+      <img
+        id="anime-image"
+        src=""
+        alt="Anime Image"
+        style="background: transparent"
+      />
     </div>
   </div>
+
   <div class="tooltip-container" title="GitHub">
     <a href="https://github.com/NazuTao">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="48px" height="48px">
-        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.38.6.11.82-.26.82-.58 0-.28-.01-1.02-.02-2-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.72.08-.72 1.21.08 1.85 1.24 1.85 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.92 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.24 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.61-5.49 5.9.43.37.81 1.1.81 2.22 0 1.61-.01 2.91-.01 3.31 0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="#fff"
+        width="48px"
+        height="48px"
+      >
+        <path
+          d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.38.6.11.82-.26.82-.58 0-.28-.01-1.02-.02-2-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.72.08-.72 1.21.08 1.85 1.24 1.85 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.92 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.65.24 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.61-5.49 5.9.43.37.81 1.1.81 2.22 0 1.61-.01 2.91-.01 3.31 0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"
+        />
       </svg>
     </a>
+  </div>
+
+  <div id="popup-settings" class="popup">
+    <div class="popup-content">
+      <span class="close-popup" id="close-popup">&times;</span>
+
+      <h2>Opciones de la Extensión</h2>
+
+      <div id="links-container"></div>
+
+      <div class="upload-container">
+        <h3>Imagen principal</h3>
+        <div class="custom-file-input">
+          <label for="main-image-upload">
+            <img src="images/edit.png" alt="Subir" />
+            Seleccionar archivo
+          </label>
+          <input type="file" id="main-image-upload" accept="image/*" />
+          <span id="main-image-name">Ningún archivo seleccionado</span>
+        </div>
+
+        <h3>Imagen banner</h3>
+        <div class="custom-file-input">
+          <label for="image-banner-upload">
+            <img src="images/edit.png" alt="Subir" />
+            Seleccionar archivo
+          </label>
+          <input type="file" id="image-banner-upload" accept="image/*" />
+          <span id="image-banner-name">Ningún archivo seleccionado</span>
+        </div>
+
+        <button id="clear-images-button">
+          Borrar imágenes personalizadas
+        </button>
+
+        <div class="switch-container">
+          <label class="switch">
+            <input type="checkbox" id="toggle-anime-fetch" />
+            <span class="slider"></span>
+          </label>
+          <span>Desactivar imágenes random</span>
+        </div>
+
+        <div class="switch-container">
+          <label class="switch">
+            <input type="checkbox" id="toggle-github" />
+            <span class="slider"></span>
+          </label>
+          <span id="github-label">Desactivar icono de GitHub</span>
+        </div>
+
+        <div class="switch-container">
+          <label class="switch">
+            <input type="checkbox" id="toggle-banner" />
+            <span class="slider"></span>
+          </label>
+          <span id="banner-label">Mostrar/Ocultar imagen del banner</span>
+        </div>
+
+        <div class="color-controls">
+          <h3>Personalizar colores</h3>
+
+          <label>
+            Fondo del cuerpo
+            <input
+              type="color"
+              id="color-picker-body"
+              value="#1e1e2e"
+            />
+          </label>
+
+          <label>
+            Fondo del contenedor
+            <input
+              type="color"
+              id="color-picker-container"
+              value="#282a36"
+            />
+          </label>
+
+          <label>
+            Color de la barra de búsqueda
+            <input
+              type="color"
+              id="color-picker-searchbar"
+              value="#44475a"
+            />
+          </label>
+
+          <button id="apply-colors-btn">
+            <img src="images/edit.png" alt="Aplicar" />
+            Aplicar colores
+          </button>
+
+          <button id="reset-colors-btn">
+            <img src="images/edit.png" alt="Restablecer" />
+            Restablecer colores
+          </button>
+          <button id="edit-categories-btn" class="edit-btn" title="Abrir configuración de categorías">
+  Editar Categorías
+</button>
+<hr>
+<h3>Colores y mensaje de texto</h3>
+<label>
+  Color de categorías
+  <input type="color" id="popup-category-color" value="#c792ea">
+</label>
+<br>
+<label>
+  Color de enlaces
+  <input type="color" id="popup-link-color" value="#ffffff">
+</label>
+<br>
+<label>
+  Color de la hora
+  <input type="color" id="popup-time-color" value="#ffffff">
+</label>
+<br>
+<label>
+  Color de bienvenida
+  <input type="color" id="popup-welcome-color" value="#ffffff">
+</label>
+<br>
+<label>
+  Mensaje de bienvenida
+  <input type="text" id="popup-welcome-text" value="¡Bienvenido de nuevo!">
+</label>
+<br>
+<button id="popup-apply-text-settings">Aplicar texto y colores</button>
+        </div>
+      </div>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>

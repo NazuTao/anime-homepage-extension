@@ -304,3 +304,21 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(20px);
 }
+.reset-btn {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.reset-btn:hover {
+    background-color: #e60000;
+}
+
+.action-buttons {
+    display: flex;
+    margin-bottom: 15px;
+}

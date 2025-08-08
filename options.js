@@ -1,377 +1,337 @@
 document.addEventListener('DOMContentLoaded', () => {
     const linksContainer = document.getElementById('links-container');
+    const addCategoryBtn = document.getElementById('add-category-btn');
     const resetButton = document.getElementById('reset-button');
-    const toggleGithub = document.getElementById('toggle-github');
-    const toggleBanner = document.getElementById('toggle-banner');
-    const mainImageUpload = document.getElementById('main-image-upload');
-    const mainImageUploadBtn = document.getElementById('main-image-upload-btn');
-    const imageBannerUpload = document.getElementById('image-banner-upload');
-    const imageBannerUploadBtn = document.getElementById('image-banner-upload-btn');
-    const clearImagesBtn = document.getElementById('clear-images-button');
+    const applyColorsBtn = document.getElementById('apply-colors');
+    const saveWelcomeSettingsBtn = document.getElementById('save-welcome-settings');
+    const welcomeTextInput = document.getElementById('welcome-text');
 
-    const MAX_IMAGE_SIZE = 6 * 1024 * 1024;
     const defaultLinks = {
-        "random": [
-            { name: "YouTube", url: "https://www.youtube.com" },
-            { name: "Pinterest", url: "https://www.pinterest.com/" }
-        ],
-        "dev": [
-            { name: "You AI", url: "https://you.com/" },
-            { name: "Gemini AI", url: "https://gemini.google.com/" },
-            { name: "ChatGPT", url: "https://chatgpt.com/" },
-            { name: "Github", url: "https://github.com/" }
-        ],
-        "redes sociales": [
-            { name: "X", url: "https://x.com/" },
-            { name: "Twitch", url: "https://www.twitch.tv/" },
-            { name: "Instagram", url: "https://www.instagram.com/" },
-            { name: "Facebook Marketplace", url: "https://www.facebook.com/marketplace/" },
-            { name: "TikTok", url: "https://www.tiktok.com/" }
-        ],
         "anime": [
             { name: "AnimeFLV", url: "https://www3.animeflv.net/" },
             { name: "Jkanime", url: "https://jkanime.net/" }
+        ],
+        "dev": [
+            { name: "ChatGPT", url: "https://chatgpt.com/" },
+            { name: "Gemini AI", url: "https://gemini.google.com/" },
+            { name: "Github", url: "https://github.com/" },
+            { name: "You AI", url: "https://you.com/" }
+        ],
+        "random": [
+            { name: "Pinterest", url: "https://www.pinterest.com/" },
+            { name: "YouTube", url: "https://www.youtube.com" }
+        ],
+        "redes sociales": [
+            { name: "Facebook Marketplace", url: "https://www.facebook.com/marketplace/" },
+            { name: "Instagram", url: "https://www.instagram.com/" },
+            { name: "TikTok", url: "https://www.tiktok.com/" },
+            { name: "Twitch", url: "https://www.twitch.tv/" },
+            { name: "X", url: "https://x.com/" }
         ]
     };
+    const defaultOrder = Object.keys(defaultLinks);
 
-    function handleImageUpload(input, key) {
-        const file = input.files[0];
-        if (!file) return;
+    loadInitialConfig();
 
-        if (file.size > MAX_IMAGE_SIZE) {
-            console.error('Error: El tamaño de la imagen supera el límite permitido.');
-            return;
-        }
+    addCategoryBtn.addEventListener('click', addNewCategory);
+    resetButton.addEventListener('click', resetToDefault);
+    applyColorsBtn.addEventListener('click', saveTextColors);
+    saveWelcomeSettingsBtn.addEventListener('click', saveWelcomeSettings);
 
-        const reader = new FileReader();
-        reader.onload = () => {
-            const imageData = reader.result;
-            if (file.type === 'image/gif') {
-                storeImage(imageData, key);
-            } else {
-                compressImage(imageData, 0.8, (compressedData) => {
-                    storeImage(compressedData, key);
-                });
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function storeImage(imageData, key) {
-        try {
-            chrome.storage.local.set({ [key]: imageData }, () => {
-                alert('Imagen subida con éxito.');
-                updateImages(key);
+    function loadInitialConfig() {
+        chrome.storage.sync.get([
+            'links',
+            'categoryOrder',
+            'textColors',
+            'welcomeText',
+            'welcomeColor',
+            'timeColor'
+        ], (data) => {
+            let links = data.links || defaultLinks;
+            let order = data.categoryOrder || Object.keys(links);
+            Object.keys(links).forEach(cat => {
+                if (!order.includes(cat)) order.push(cat);
             });
-        } catch (error) {
-            console.error('Error storing image:', error);
-        }
-    }
+            loadLinks(links, order);
 
-    function compressImage(dataUrl, quality, callback) {
-        const img = new Image();
-        img.src = dataUrl;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-            callback(compressedDataUrl);
-        };
-    }
-
-    function registerImageUploadEvent(button, input, key) {
-        button.addEventListener('click', () => {
-            handleImageUpload(input, key);
+            const colors = data.textColors || {};
+            document.getElementById('category-color').value = colors.category || '#c792ea';
+            document.getElementById('link-color').value = colors.link || '#ffffff';
+            document.getElementById('welcome-color').value = colors.welcome || '#ffffff';
+            document.getElementById('time-color').value = colors.time || '#ffffff';
+            welcomeTextInput.value = data.welcomeText || '¡Bienvenido de nuevo!';
+            if (data.welcomeColor) document.getElementById('welcome-color').value = data.welcomeColor;
+            if (data.timeColor) document.getElementById('time-color').value = data.timeColor;
         });
     }
 
-    registerImageUploadEvent(mainImageUploadBtn, mainImageUpload, 'mainImage');
-    registerImageUploadEvent(imageBannerUploadBtn, imageBannerUpload, 'imageBanner');
-
-    clearImagesBtn.addEventListener('click', () => {
-        chrome.storage.local.get(['mainImage', 'imageBanner'], (data) => {
-            const itemsToRemove = [];
-            if (data.mainImage) {
-                itemsToRemove.push('mainImage');
-            }
-            if (data.imageBanner) {
-                itemsToRemove.push('imageBanner');
-            }
-            if (itemsToRemove.length === 0) {
-                alert('No hay imágenes por eliminar.');
-            } else {
-                chrome.storage.local.remove(itemsToRemove, () => {
-                    alert('Imágenes personalizadas eliminadas.');
-                    updateImages();
-                });
-            }
-        });
-    });
-
-    function updateImages(key) {
-        try {
-            if (key === 'mainImage' || !key) {
-                chrome.storage.local.get('mainImage', (data) => {
-                    const mainImageElement = document.getElementById('main-image');
-                    if (mainImageElement) {
-                        mainImageElement.src = data.mainImage ? data.mainImage : '';
-                    }
-                });
-            }
-            if (key === 'imageBanner' || !key) {
-                chrome.storage.local.get('imageBanner', (data) => {
-                    const imageBannerElement = document.getElementById('image-banner');
-                    if (imageBannerElement) {
-                        imageBannerElement.src = data.imageBanner ? data.imageBanner : '';
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Error updating images:', error);
-        }
-    }
-
-    function initializeLinks() {
-        chrome.storage.sync.get(['links', 'hideGithub', 'hideBanner'], (data) => {
-            if (!data.links) {
-                chrome.storage.sync.set({ links: defaultLinks }, loadLinks);
-            } else {
-                loadLinks();
-            }
-            
-            const isHiddenGithub = data.hideGithub ?? false;
-            toggleGithub.checked = isHiddenGithub;
-
-            const isHiddenBanner = data.hideBanner ?? false;
-            toggleBanner.checked = isHiddenBanner;
-            const imageBannerElement = document.getElementById('image-banner');
-            if (imageBannerElement) {
-                imageBannerElement.style.display = isHiddenBanner ? 'none' : 'block';
-            }
-        });
-    }
-
-    const toggleAnimeFetch = document.getElementById('toggle-anime-fetch');
-
-    chrome.storage.sync.get('disableAnimeFetch', (data) => {
-        toggleAnimeFetch.checked = data.disableAnimeFetch ?? false;
-    });
-    
-    toggleAnimeFetch.addEventListener('change', () => {
-        const isDisabled = toggleAnimeFetch.checked;
-        chrome.storage.sync.set({ disableAnimeFetch: isDisabled });
-    });
-
-    initializeLinks();
-
-    toggleGithub.addEventListener('change', () => {
-        const isHiddenGithub = toggleGithub.checked;
-        chrome.storage.sync.set({ hideGithub: isHiddenGithub });
-    });
-
-    toggleBanner.addEventListener('change', () => {
-        const isHiddenBanner = toggleBanner.checked;
-        chrome.storage.sync.set({ hideBanner: isHiddenBanner }, () => {
-            const imageBannerElement = document.getElementById('image-banner');
-            if (imageBannerElement) {
-                imageBannerElement.style.display = isHiddenBanner ? 'none' : 'block';
-            }
-        });
-    });
-
-    resetButton.addEventListener('click', () => {
-        chrome.storage.sync.set({ links: defaultLinks }, loadLinks);
-    });
-
-    function loadLinks() {
+    function loadLinks(linksData, orderArr) {
         linksContainer.innerHTML = '';
+        const links = linksData || {};
+        const order = orderArr || Object.keys(links);
+        order.forEach(category => {
+            if (links[category]) {
+                createCategoryElement(category, links[category], order);
+            }
+        });
+    }
 
-        chrome.storage.sync.get(['links', 'hideGithub'], (data) => {
-            const links = data.links || {};
+    function createCategoryElement(category, links, order) {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'category-container';
 
-            if (Object.keys(links).length === 0) {
-                createAddCategoryButton();
+        const categoryEditDiv = document.createElement('div');
+        categoryEditDiv.className = 'category-edit';
+
+        const categoryInput = document.createElement('input');
+        categoryInput.type = 'text';
+        categoryInput.value = category;
+        categoryInput.className = 'category-name-input';
+
+        const saveCategoryBtn = document.createElement('button');
+        saveCategoryBtn.className = 'save-category';
+        saveCategoryBtn.textContent = 'Guardar';
+
+        const deleteCategoryBtn = document.createElement('button');
+        deleteCategoryBtn.className = 'delete-category';
+        deleteCategoryBtn.textContent = 'Eliminar';
+
+        const upBtn = document.createElement('button');
+        upBtn.textContent = '↑';
+        upBtn.title = 'Subir categoría';
+        upBtn.addEventListener('click', () => moveCategory(category, -1));
+
+        const downBtn = document.createElement('button');
+        downBtn.textContent = '↓';
+        downBtn.title = 'Bajar categoría';
+        downBtn.addEventListener('click', () => moveCategory(category, 1));
+
+        categoryEditDiv.appendChild(upBtn);
+        categoryEditDiv.appendChild(downBtn);
+        categoryEditDiv.appendChild(categoryInput);
+        categoryEditDiv.appendChild(saveCategoryBtn);
+        categoryEditDiv.appendChild(deleteCategoryBtn);
+
+        const ul = document.createElement('ul');
+        links.forEach(link => {
+            ul.appendChild(createLinkElement(link.name, link.url));
+        });
+
+        const addLinkBtn = document.createElement('button');
+        addLinkBtn.className = 'add-link-btn';
+        addLinkBtn.textContent = '+ Añadir Enlace';
+        addLinkBtn.addEventListener('click', () => {
+            ul.appendChild(createLinkElement('', ''));
+        });
+
+        saveCategoryBtn.addEventListener('click', () => {
+            const newCategoryName = categoryInput.value.trim();
+            if (!newCategoryName) {
+                alert('El nombre de la categoría no puede estar vacío');
                 return;
             }
-
-            for (const category in links) {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category-container';
-
-                const categoryEditDiv = document.createElement('div');
-                categoryEditDiv.className = 'category-edit';
-
-                const categoryInput = document.createElement('input');
-                categoryInput.type = 'text';
-                categoryInput.value = category;
-                categoryInput.className = 'category-name-input';
-
-                const saveCategoryBtn = document.createElement('button');
-                saveCategoryBtn.className = 'save-category';
-                saveCategoryBtn.setAttribute('data-category', category);
-                saveCategoryBtn.innerHTML = '💾';
-
-                const deleteCategoryBtn = document.createElement('button');
-                deleteCategoryBtn.className = 'delete-category';
-                deleteCategoryBtn.setAttribute('data-category', category);
-                deleteCategoryBtn.textContent = '🗑️';
-
-                categoryEditDiv.appendChild(categoryInput);
-                categoryEditDiv.appendChild(saveCategoryBtn);
-                categoryEditDiv.appendChild(deleteCategoryBtn);
-
-                const addLinkBtn = document.createElement('button');
-                addLinkBtn.textContent = 'Agregar Enlace';
-                addLinkBtn.className = 'add-link-btn';
-
-                if (links[category].length >= 5) {
-                    addLinkBtn.disabled = true;
+            const newLinks = [];
+            ul.querySelectorAll('li').forEach(li => {
+                const name = li.querySelector('.link-name').value.trim();
+                let url = li.querySelector('.link-url').value.trim();
+                if (name && url) {
+                    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+                    newLinks.push({ name, url });
                 }
-
-                addLinkBtn.addEventListener('click', () => {
-                    addNewLink(category);
+            });
+            chrome.storage.sync.get(['links', 'categoryOrder'], (data) => {
+                const links = data.links || {};
+                let order = data.categoryOrder || Object.keys(links);
+                if (newCategoryName !== category) {
+                    if (links[newCategoryName]) {
+                        alert('Ya existe una categoría con ese nombre');
+                        return;
+                    }
+                    delete links[category];
+                    order = order.map(cat => cat === category ? newCategoryName : cat);
+                }
+                links[newCategoryName] = newLinks;
+                chrome.storage.sync.set({ links, categoryOrder: order }, () => {
+                    chrome.storage.sync.get(['links', 'categoryOrder'], (fresh) => {
+                        loadLinks(fresh.links, fresh.categoryOrder);
+                    });
                 });
+            });
+        });
 
-                const ul = document.createElement('ul');
-
-                links[category].forEach((link, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <input type="text" value="${link.name}" class="link-name" />
-                        <input type="text" value="${link.url}" class="link-url" />
-                        <button class="save-link" data-category="${category}" data-index="${index}">💾</button>
-                        <button class="delete-link" data-category="${category}" data-index="${index}">🗑️</button>
-                    `;
-                    ul.appendChild(li);
+        deleteCategoryBtn.addEventListener('click', () => {
+            if (confirm(`¿Eliminar la categoría "${category}" y todos sus enlaces?`)) {
+                chrome.storage.sync.get(['links', 'categoryOrder'], (data) => {
+                    const links = data.links || {};
+                    let order = data.categoryOrder || Object.keys(links);
+                    delete links[category];
+                    order = order.filter(cat => cat !== category);
+                    chrome.storage.sync.set({ links, categoryOrder: order }, () => loadLinks(links, order));
                 });
-
-                categoryDiv.appendChild(categoryEditDiv);
-                categoryDiv.appendChild(addLinkBtn);
-                categoryDiv.appendChild(ul);
-                linksContainer.appendChild(categoryDiv);
             }
         });
+
+        categoryDiv.appendChild(categoryEditDiv);
+        categoryDiv.appendChild(addLinkBtn);
+        categoryDiv.appendChild(ul);
+        linksContainer.appendChild(categoryDiv);
     }
 
-    linksContainer.addEventListener('click', (event) => {
-        const target = event.target;
+    function createLinkElement(name, url) {
+        const li = document.createElement('li');
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = name;
+        nameInput.className = 'link-name';
 
-        if (target.classList.contains('save-category')) {
-            const category = target.getAttribute('data-category');
-            const newName = target.parentElement.querySelector('.category-name-input').value;
-            renameCategory(category, newName);
+        const urlInput = document.createElement('input');
+        urlInput.type = 'text';
+        urlInput.value = url;
+        urlInput.className = 'link-url';
+
+        const saveLinkBtn = document.createElement('button');
+        saveLinkBtn.className = 'save-link';
+        saveLinkBtn.textContent = 'Guardar';
+
+        const deleteLinkBtn = document.createElement('button');
+        deleteLinkBtn.className = 'delete-link';
+        deleteLinkBtn.textContent = 'Eliminar';
+
+        saveLinkBtn.addEventListener('click', () => {
+            const liParent = li.parentElement;
+            const categoryDiv = li.closest('.category-container');
+            const categoryInput = categoryDiv.querySelector('.category-name-input');
+            const categoryName = categoryInput.value.trim();
+            const newLinks = [];
+            liParent.querySelectorAll('li').forEach(l => {
+                const n = l.querySelector('.link-name').value.trim();
+                let u = l.querySelector('.link-url').value.trim();
+                if (n && u) {
+                    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+                    newLinks.push({ name: n, url: u });
+                }
+            });
+            chrome.storage.sync.get(['links', 'categoryOrder'], (data) => {
+                const links = data.links || {};
+                links[categoryName] = newLinks;
+                chrome.storage.sync.set({ links }, () => loadLinks(links, data.categoryOrder));
+            });
+        });
+
+        deleteLinkBtn.addEventListener('click', () => {
+            if (confirm('¿Eliminar este enlace?')) {
+                li.remove();
+                const liParent = li.parentElement;
+                const categoryDiv = li.closest('.category-container');
+                const categoryInput = categoryDiv.querySelector('.category-name-input');
+                const categoryName = categoryInput.value.trim();
+                const newLinks = [];
+                liParent.querySelectorAll('li').forEach(l => {
+                    const n = l.querySelector('.link-name').value.trim();
+                    let u = l.querySelector('.link-url').value.trim();
+                    if (n && u) {
+                        if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+                        newLinks.push({ name: n, url: u });
+                    }
+                });
+                chrome.storage.sync.get(['links', 'categoryOrder'], (data) => {
+                    const links = data.links || {};
+                    links[categoryName] = newLinks;
+                    chrome.storage.sync.set({ links }, () => loadLinks(links, data.categoryOrder));
+                });
+            }
+        });
+
+        li.appendChild(nameInput);
+        li.appendChild(urlInput);
+        li.appendChild(saveLinkBtn);
+        li.appendChild(deleteLinkBtn);
+        return li;
+    }
+
+    function addNewCategory() {
+        const categoryName = prompt('Nombre de la nueva categoría:');
+        if (categoryName && categoryName.trim()) {
+            chrome.storage.sync.get(['links', 'categoryOrder'], (data) => {
+                const links = data.links || {};
+                let order = data.categoryOrder || Object.keys(links);
+                if (links[categoryName]) {
+                    alert('Ya existe una categoría con ese nombre');
+                    return;
+                }
+                links[categoryName] = [];
+                order.push(categoryName);
+                chrome.storage.sync.set({ links, categoryOrder: order }, () => loadLinks(links, order));
+            });
         }
+    }
 
-        if (target.classList.contains('delete-category')) {
-            const category = target.getAttribute('data-category');
-            deleteCategory(category);
+    function moveCategory(category, direction) {
+        chrome.storage.sync.get(['links', 'categoryOrder'], (data) => {
+            const links = data.links || {};
+            let order = data.categoryOrder || Object.keys(links);
+            const idx = order.indexOf(category);
+            if (idx === -1) return;
+            const newIdx = idx + direction;
+            if (newIdx < 0 || newIdx >= order.length) return;
+            [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
+            chrome.storage.sync.set({ categoryOrder: order }, () => loadLinks(links, order));
+        });
+    }
+
+    function saveTextColors() {
+        const textColors = {
+            category: document.getElementById('category-color').value,
+            link: document.getElementById('link-color').value,
+            welcome: document.getElementById('welcome-color').value,
+            time: document.getElementById('time-color').value
+        };
+        chrome.storage.sync.set({ textColors }, () => {
+            alert('Colores guardados correctamente');
+        });
+    }
+
+    function saveWelcomeSettings() {
+        const settings = {
+            welcomeText: welcomeTextInput.value.trim(),
+            welcomeColor: document.getElementById('welcome-color').value,
+            timeColor: document.getElementById('time-color').value,
+            textColors: {
+                category: document.getElementById('category-color').value,
+                link: document.getElementById('link-color').value,
+                welcome: document.getElementById('welcome-color').value,
+                time: document.getElementById('time-color').value
+            }
+        };
+        chrome.storage.sync.set(settings, () => {
+            alert('Configuración guardada correctamente');
+        });
+    }
+
+    function resetToDefault() {
+        if (confirm('¿Restablecer TODA la configuración a valores por defecto?')) {
+            const defaultSettings = {
+                links: defaultLinks,
+                categoryOrder: defaultOrder,
+                textColors: {
+                    category: '#c792ea',
+                    link: '#ffffff',
+                    welcome: '#ffffff',
+                    time: '#ffffff'
+                },
+                welcomeText: '¡Bienvenido de nuevo!',
+                welcomeColor: '#ffffff',
+                timeColor: '#ffffff'
+            };
+            chrome.storage.sync.set(defaultSettings, () => {
+                loadLinks(defaultLinks, defaultOrder);
+                welcomeTextInput.value = defaultSettings.welcomeText;
+                document.getElementById('welcome-color').value = defaultSettings.welcomeColor;
+                document.getElementById('time-color').value = defaultSettings.timeColor;
+                document.getElementById('category-color').value = defaultSettings.textColors.category;
+                document.getElementById('link-color').value = defaultSettings.textColors.link;
+                alert('Configuración restablecida completamente');
+            });
         }
-
-        if (target.classList.contains('save-link')) {
-            const category = target.getAttribute('data-category');
-            const index = target.getAttribute('data-index');
-            const li = target.closest('li');
-            const newName = li.querySelector('.link-name').value;
-            const newUrl = normalizeUrl(li.querySelector('.link-url').value);
-            saveLink(category, index, newName, newUrl);
-        }
-
-        if (target.classList.contains('delete-link')) {
-            const category = target.getAttribute('data-category');
-            const index = target.getAttribute('data-index');
-            deleteLink(category, index);
-        }
-    });
-
-    function addNewLink(category) {
-        chrome.storage.sync.get('links', (data) => {
-            const links = data.links || {};
-
-            if (links[category].length >= 5) {
-                alert('No puedes agregar más de 5 enlaces en esta categoría.');
-                return;
-            }
-
-            const linkName = prompt('Nombre del nuevo enlace:');
-            let linkUrl = prompt('URL del nuevo enlace:');
-
-            if (linkName && linkUrl) {
-                linkUrl = normalizeUrl(linkUrl);
-
-                links[category].push({ name: linkName, url: linkUrl });
-
-                chrome.storage.sync.set({ links }, loadLinks);
-            }
-        });
     }
-
-    function normalizeUrl(url) {
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            return `https://${url}`;
-        }
-        return url;
-    }
-
-    function renameCategory(oldName, newName) {
-        if (!newName.trim()) return;
-
-        chrome.storage.sync.get('links', (data) => {
-            const links = data.links || {};
-
-            if (links[newName]) {
-                alert('Ya existe una categoría con ese nombre.');
-                return;
-            }
-
-            links[newName] = links[oldName];
-            delete links[oldName];
-
-            chrome.storage.sync.set({ links }, loadLinks);
-        });
-    }
-
-    function deleteCategory(category) {
-        chrome.storage.sync.get('links', (data) => {
-            const links = data.links || {};
-            delete links[category];
-
-            chrome.storage.sync.set({ links }, loadLinks);
-        });
-    }
-
-    function saveLink(category, index, newName, newUrl) {
-        chrome.storage.sync.get('links', (data) => {
-            const links = data.links || {};
-
-            if (newName.trim() && newUrl.trim()) {
-                links[category][index] = { name: newName, url: newUrl };
-
-                chrome.storage.sync.set({ links }, loadLinks);
-            }
-        });
-    }
-
-    function deleteLink(category, index) {
-        chrome.storage.sync.get('links', (data) => {
-            const links = data.links || {};
-            links[category].splice(index, 1);
-
-            console.log(`Category ${category} now has ${links[category].length} links`);
-
-            if (links[category].length === 0) {
-                delete links[category];
-                console.log(`Category ${category} deleted`);
-            }
-
-            chrome.storage.sync.set({ links }, loadLinks);
-        });
-    }
-
-    function createAddCategoryButton() {
-    }
-
-    updateImages();
 });
