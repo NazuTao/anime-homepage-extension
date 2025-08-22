@@ -36,8 +36,6 @@ Sigue estos pasos para instalar la extensión desde GitHub como una extensión n
 4. Haz clic en el botón "Cargar descomprimida" y selecciona la carpeta donde descomprimiste el código fuente.
 5. La extensión ahora debería aparecer en la lista de extensiones y estar lista para usar.
 
-Donaciones para poder subir la extensión a chrome: https://ko-fi.com/xuee
-
 ## Créditos
 
 - **Imagen del banner**: Es una imagen sacada del anime de Kimetsu no Yaiba
